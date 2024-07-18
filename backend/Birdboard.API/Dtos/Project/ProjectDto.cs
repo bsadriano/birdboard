@@ -1,6 +1,6 @@
-namespace Birdboard.API.Models;
+namespace Birdboard.API.Dtos.Project;
 
-public class Project
+public class ProjectDto
 {
     public int Id { get; set; }
     public string Title { get; set; }
