@@ -10,7 +10,4 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.32"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.32"/>
   </ItemGroup>
-  <ItemGroup>
-    <InternalsVisibleTo Include="Birdboard.API.Test"/>
-  </ItemGroup>
 </Project>

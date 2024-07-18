@@ -7,16 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Birdboard.API.Test.Feature;
 
-public class ProjectsTest
+public class ProjectsTest : BaseIntegrationTest
 {
-    BirdboardWebApplicationFactory _factory;
-    HttpClient _client;
-
-    public ProjectsTest()
+    public ProjectsTest(BirdboardWebApplicationFactory factory)
+        : base(factory)
     {
-        _factory = new BirdboardWebApplicationFactory();
-
-        using (var scope = _factory.Services.CreateScope())
+        using (var scope = factory.Services.CreateScope())
         {
             var scopeService = scope.ServiceProvider;
             var dbContext = scopeService.GetRequiredService<BirdboardDbContext>();
@@ -24,8 +20,6 @@ public class ProjectsTest
             dbContext.Database.EnsureCreated();
             dbContext.SaveChanges();
         }
-
-        _client = _factory.CreateClient();
     }
     [Fact]
     public async void AUserCanCreateAProject()
@@ -45,25 +39,33 @@ public class ProjectsTest
         var result = await response.Content.ReadFromJsonAsync<List<Project>>();
         result.Count().Should().Be(1);
         result[0].Title.Should().Be(newProject.Title);
+
+        _dbContext.Projects.FirstOrDefault(p => p.Id == newProject.Id);
     }
 
-    [Theory, MemberData(nameof(RequiredData))]
-    public async void AProjectRequiresATitleAndADescription(string title, string description)
+    [Fact]
+    public async void AProjectRequiresATitle()
     {
         var newProject = new Project
         {
-            Title = title,
-            Description = description
+            Title = "Some Title",
+            Description = ""
         };
         var httpContent = Http.BuildContent(newProject);
         var request = await _client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
         request.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
 
-    private static IEnumerable<object[]> RequiredData =>
-        new List<object[]>
+    [Fact]
+    public async void AProjectRequiresADescription()
+    {
+        var newProject = new Project
         {
-            new object[] { "Some Title", "" },
-            new object[] { "", "Some Description" },
+            Title = "",
+            Description = "Some Description"
         };
+        var httpContent = Http.BuildContent(newProject);
+        var request = await _client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
+        request.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
 }

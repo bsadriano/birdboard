@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Birdboard.API.Test;
 
-internal class BirdboardWebApplicationFactory : WebApplicationFactory<Program>
+public class BirdboardWebApplicationFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
