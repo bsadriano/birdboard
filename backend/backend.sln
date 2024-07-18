@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Birdboard.API", "Birdboard.API\Birdboard.API.csproj", "{F786AE86-A8B8-4239-A2D3-1EDECE766396}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Birdboard.API.Test", "Birdboard.API.Test\Birdboard.API.Test.csproj", "{38D44D24-AB4E-44DD-AD5B-211EB3E4F506}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F786AE86-A8B8-4239-A2D3-1EDECE766396}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F786AE86-A8B8-4239-A2D3-1EDECE766396}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F786AE86-A8B8-4239-A2D3-1EDECE766396}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F786AE86-A8B8-4239-A2D3-1EDECE766396}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38D44D24-AB4E-44DD-AD5B-211EB3E4F506}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38D44D24-AB4E-44DD-AD5B-211EB3E4F506}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38D44D24-AB4E-44DD-AD5B-211EB3E4F506}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38D44D24-AB4E-44DD-AD5B-211EB3E4F506}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
