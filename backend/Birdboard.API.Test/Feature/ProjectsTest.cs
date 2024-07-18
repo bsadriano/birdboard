@@ -46,4 +46,24 @@ public class ProjectsTest
         result.Count().Should().Be(1);
         result[0].Title.Should().Be(newProject.Title);
     }
+
+    [Theory, MemberData(nameof(RequiredData))]
+    public async void AProjectRequiresATitleAndADescription(string title, string description)
+    {
+        var newProject = new Project
+        {
+            Title = title,
+            Description = description
+        };
+        var httpContent = Http.BuildContent(newProject);
+        var request = await _client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
+        request.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    private static IEnumerable<object[]> RequiredData =>
+        new List<object[]>
+        {
+            new object[] { "Some Title", "" },
+            new object[] { "", "Some Description" },
+        };
 }
