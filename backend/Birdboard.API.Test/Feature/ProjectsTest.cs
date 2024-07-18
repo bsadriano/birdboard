@@ -39,7 +39,7 @@ public class ProjectsTest : IntegrationTest
         await DbContext.Projects.AddAsync(newProject);
         await DbContext.SaveChangesAsync();
 
-        var response = await Client.GetAsync(HttpHelper.Urls.GetProjects);
+        var response = await Client.GetAsync(newProject.Path());
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
 
