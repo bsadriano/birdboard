@@ -6,11 +6,9 @@ using FluentAssertions;
 
 namespace Birdboard.API.Test.Feature;
 
-[Collection(nameof(SharedTestCollection))]
-public class ProjectsTest : BaseIntegrationTest
+public class ProjectsTest : IntegrationTest
 {
-    public ProjectsTest(BirdboardWebApplicationFactory factory)
-        : base(factory)
+    public ProjectsTest(IntegrationFixture integrationFixture) : base(integrationFixture)
     {
     }
 
@@ -19,17 +17,17 @@ public class ProjectsTest : BaseIntegrationTest
     {
         var newProject = DataFixture.GetProject();
         var httpContent = Http.BuildContent(newProject);
-        var request = await _client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
+        var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
         request.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
 
-        var response = await _client.GetAsync(HttpHelper.Urls.GetProjects);
+        var response = await Client.GetAsync(HttpHelper.Urls.GetProjects);
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
         var result = await response.Content.ReadFromJsonAsync<List<Project>>();
-        result.Count().Should().BeGreaterThanOrEqualTo(1);
-        result.Any(project => project.Title == newProject.Title);
+        result.Count().Should().Be(1);
+        result.First().Title.Should().Be(newProject.Title);
 
-        var project = _dbContext.Projects.FirstOrDefault(p => p.Title == newProject.Title);
+        var project = DbContext.Projects.FirstOrDefault(p => p.Id == result.First().Id);
         project.Should().NotBeNull();
     }
 
@@ -38,10 +36,10 @@ public class ProjectsTest : BaseIntegrationTest
     {
         var newProject = DataFixture.GetProject();
 
-        await _dbContext.Projects.AddAsync(newProject);
-        await _dbContext.SaveChangesAsync();
+        await DbContext.Projects.AddAsync(newProject);
+        await DbContext.SaveChangesAsync();
 
-        var response = await _client.GetAsync(HttpHelper.Urls.GetProjects);
+        var response = await Client.GetAsync(HttpHelper.Urls.GetProjects);
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
 
@@ -52,7 +50,7 @@ public class ProjectsTest : BaseIntegrationTest
         newProject.Title = "";
 
         var httpContent = Http.BuildContent(newProject);
-        var request = await _client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
+        var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
         request.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
 
@@ -63,7 +61,7 @@ public class ProjectsTest : BaseIntegrationTest
         newProject.Description = "";
 
         var httpContent = Http.BuildContent(newProject);
-        var request = await _client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
+        var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
         request.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
 }

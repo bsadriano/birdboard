@@ -13,7 +13,9 @@ namespace Birdboard.API.Test;
 
 public class BirdboardWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly MsSqlContainer _dbContainer = new MsSqlBuilder().Build();
+    private readonly MsSqlContainer _dbContainer = new MsSqlBuilder()
+        .WithCleanUp(true)
+        .Build();
     private SqlConnection _dbConnection = default!;
     private Respawner _respawner = default!;
 
@@ -30,14 +32,19 @@ public class BirdboardWebApplicationFactory : WebApplicationFactory<Program>, IA
     public async Task InitializeAsync()
     {
         await _dbContainer.StartAsync();
+
         _dbConnection = new SqlConnection(_dbContainer.GetConnectionString());
         await _dbConnection.OpenAsync();
         _respawner = await Respawner.CreateAsync(_dbContainer.GetConnectionString());
+
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<BirdboardDbContext>();
+        await dbContext.Database.MigrateAsync();
     }
 
     public new async Task DisposeAsync()
     {
-        await _dbContainer.StopAsync();
+        await _dbContainer.DisposeAsync();
     }
 
     public async Task ResetDatabaseAsync()
