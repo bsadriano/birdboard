@@ -14,7 +14,7 @@ public class ProjectsTest : IntegrationTest
     }
 
     [Fact]
-    public async void OnlyAuthenticatedUsersCanCreateAProject()
+    public async void GuestsCannotCreateAProject()
     {
         var newProject = new ProjectFactory().GetProject().ToCreateProjectRequestDto();
 
@@ -24,9 +24,24 @@ public class ProjectsTest : IntegrationTest
     }
 
     [Fact]
+    public async void GuestsMayNotViewProjects()
+    {
+        var request = await Client.GetAsync(HttpHelper.Urls.GetProjects);
+        request.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async void GuestsCannotViewASingleProject()
+    {
+        var request = await Client.GetAsync(HttpHelper.Urls.GetProjects);
+        request.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
     public async void AUserCanCreateAProject()
     {
-        await LoginAs("john", "john123!");
+        var user = await new UserFactory().Create(DbContext);
+        LoginAs(user);
 
         var newProject = new ProjectFactory().GetProject().ToCreateProjectRequestDto();
 
@@ -48,11 +63,12 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void AUserCanViewAProject()
     {
-        var john = await LoginAs("john", "john123!");
+        var user = await new UserFactory().Create(DbContext);
+        LoginAs(user);
 
-        var newProject = new ProjectFactory().WithOwner(john).GetProject();
-        await DbContext.Projects.AddAsync(newProject);
-        await DbContext.SaveChangesAsync();
+        var newProject = await new ProjectFactory()
+            .WithOwner(user)
+            .Create(DbContext);
 
         var response = await Client.GetAsync(newProject.Path());
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
@@ -61,10 +77,11 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void AProjectRequiresATitle()
     {
-        var john = await LoginAs("john", "john123!");
+        var user = await new UserFactory().Create(DbContext);
+        LoginAs(user);
 
         var newProject = new ProjectFactory()
-            .WithOwner(john)
+            .WithOwner(user)
             .GetProject()
             .ToCreateProjectRequestDto();
 
@@ -78,10 +95,11 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void AProjectRequiresADescription()
     {
-        var john = await LoginAs("john", "john123!");
+        var user = await new UserFactory().Create(DbContext);
+        LoginAs(user);
 
         var newProject = new ProjectFactory()
-            .WithOwner(john)
+            .WithOwner(user)
             .GetProject()
             .ToCreateProjectRequestDto();
 

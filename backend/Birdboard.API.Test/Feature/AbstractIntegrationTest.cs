@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using Birdboard.API.Data;
 using Birdboard.API.Models;
+using Birdboard.API.Test.Factories;
 using Birdboard.API.Test.Helper;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,18 +34,8 @@ public abstract class IntegrationTest : IAsyncLifetime
         await IntegrationFixture.ResetDatabaseAsync();
     }
 
-    protected async Task<AppUser> LoginAs(string userName, string password)
+    protected void LoginAs(AppUser user)
     {
-        JwtTokenHelper.CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
-        AppUser user = new AppUser
-        {
-            UserName = userName,
-            PasswordHash = Convert.ToBase64String(passwordHash),
-            PasswordSalt = passwordSalt
-        };
-        await DbContext.Users.AddAsync(user);
-        await DbContext.SaveChangesAsync();
-
         var token = new TestJwtToken()
             .WithId(user.Id)
             .WithUserName(user.UserName)
@@ -52,8 +43,6 @@ public abstract class IntegrationTest : IAsyncLifetime
             .Build();
 
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        return user;
     }
 }
 

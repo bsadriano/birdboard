@@ -1,6 +1,8 @@
+using Birdboard.API.Data;
 using Birdboard.API.Dtos.Project;
 using Birdboard.API.Models;
 using Bogus;
+using Microsoft.EntityFrameworkCore;
 
 namespace Birdboard.API.Test.Factories;
 
@@ -22,6 +24,15 @@ public class ProjectFactory
     public Project GetProject(bool useNewSeed = false)
     {
         return GetProjects(1, useNewSeed)[0];
+    }
+
+    public async Task<Project> Create(BirdboardDbContext dbContext)
+    {
+        var newProject = GetProject();
+        await dbContext.Projects.AddAsync(newProject);
+        await dbContext.SaveChangesAsync();
+
+        return newProject;
     }
 
     private Faker<Project> GetProjectFaker(bool useNewSeed)
