@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Birdboard.API.Models;
 using Birdboard.API.Test.Fixtures;
@@ -13,9 +14,21 @@ public class ProjectsTest : IntegrationTest
     }
 
     [Fact]
+    public async void OnlyAuthenticatedUsersCanCreateAProject()
+    {
+        var newProject = new DataFixture().GetCreateProjectRequestDto();
+
+        var httpContent = Http.BuildContent(newProject);
+        var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
+        request.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
     public async void AUserCanCreateAProject()
     {
-        var newProject = DataFixture.GetProject();
+        await LoginAs("john", "john123!");
+
+        var newProject = new DataFixture().GetCreateProjectRequestDto();
         var httpContent = Http.BuildContent(newProject);
         var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
         request.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
@@ -34,8 +47,9 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void AUserCanViewAProject()
     {
-        var newProject = DataFixture.GetProject();
+        var john = await LoginAs("john", "john123!");
 
+        var newProject = new DataFixture().WithOwner(john).GetProject();
         await DbContext.Projects.AddAsync(newProject);
         await DbContext.SaveChangesAsync();
 
@@ -46,7 +60,9 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void AProjectRequiresATitle()
     {
-        var newProject = DataFixture.GetProject();
+        var john = await LoginAs("john", "john123!");
+
+        var newProject = new DataFixture().WithOwner(john).GetCreateProjectRequestDto();
         newProject.Title = "";
 
         var httpContent = Http.BuildContent(newProject);
@@ -57,7 +73,9 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void AProjectRequiresADescription()
     {
-        var newProject = DataFixture.GetProject();
+        var john = await LoginAs("john", "john123!");
+
+        var newProject = new DataFixture().WithOwner(john).GetCreateProjectRequestDto();
         newProject.Description = "";
 
         var httpContent = Http.BuildContent(newProject);

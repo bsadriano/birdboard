@@ -8,7 +8,7 @@ public class ProjectTest
     [Fact]
     public void ItHasAPath()
     {
-        var project = DataFixture.GetProject();
+        var project = new DataFixture().GetProject();
 
         project.Path().Should().Be("/api/projects/0");
     }

@@ -1,8 +1,10 @@
-using Birdboard.API.Controllers.Mappers;
-using Birdboard.API.Data;
 using Birdboard.API.Dtos.Project;
+using Birdboard.API.Mappers;
 using Birdboard.API.Models;
 using Birdboard.API.Repositories.Interfaces;
+using Birdboard.API.Services.UserService;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Birdboard.API.Controllers;
@@ -11,14 +13,18 @@ namespace Birdboard.API.Controllers;
 [Route("api/projects")]
 public class ProjectController : ControllerBase
 {
+    private readonly IUserService _userService;
     private readonly IProjectRepository _projectRepository;
+    private readonly UserManager<AppUser> _userManager;
 
-    public ProjectController(IProjectRepository projectRepository)
+    public ProjectController(IUserService userService, IProjectRepository projectRepository, UserManager<AppUser> userManager)
     {
+        _userService = userService;
         _projectRepository = projectRepository;
+        _userManager = userManager;
     }
 
-    [HttpGet]
+    [HttpGet, Authorize]
     [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectDto>))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetAll()
@@ -31,7 +37,7 @@ public class ProjectController : ControllerBase
         );
     }
 
-    [HttpGet]
+    [HttpGet, Authorize]
     [Route("{id:int}")]
     [ProducesResponseType(200, Type = typeof(ProjectDto))]
     [ProducesResponseType(400)]
@@ -47,7 +53,7 @@ public class ProjectController : ControllerBase
             : Ok(project.ToProjectDto());
     }
 
-    [HttpPost]
+    [HttpPost, Authorize]
     [ProducesResponseType(201, Type = typeof(ProjectDto))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateProject([FromBody] CreateProjectRequestDto createProjectDto)
@@ -55,7 +61,16 @@ public class ProjectController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
+        var userId = _userService.GetId();
+        var appUser = await _userManager.FindByIdAsync(userId);
+
+        if (appUser == null)
+        {
+            return BadRequest("Logged in user not found");
+        }
+
         var projectModel = createProjectDto.ToProject();
+        projectModel.OwnerId = appUser.Id;
         await _projectRepository.CreateAsync(projectModel);
 
         return CreatedAtAction(

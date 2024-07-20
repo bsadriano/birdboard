@@ -1,7 +1,7 @@
 using Birdboard.API.Dtos.Project;
 using Birdboard.API.Models;
 
-namespace Birdboard.API.Controllers.Mappers;
+namespace Birdboard.API.Mappers;
 
 public static class ProjectMappers
 {

@@ -1,10 +1,14 @@
 using Birdboard.API.Data;
+using Birdboard.API.Test.Helper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Respawn;
 using Testcontainers.MsSql;
 
@@ -25,6 +29,7 @@ namespace Birdboard.API.Test
         public async Task DisposeAsync()
         {
             await _msSqlContainer.DisposeAsync();
+            await App.DisposeAsync();
         }
 
         public async Task ResetDatabaseAsync()
@@ -55,46 +60,61 @@ namespace Birdboard.API.Test
                 builder.ConfigureTestServices(services =>
                 {
                     services.RemoveAll(typeof(DbContextOptions<BirdboardDbContext>));
-                    services.AddSqlServer<BirdboardDbContext>(_msSqlConnection);
+                    SetupTestContainerDb(services, _msSqlConnection);
 
-                    var scope = services.BuildServiceProvider().CreateScope();
-                    var dbContext = scope.ServiceProvider.GetRequiredService<BirdboardDbContext>();
-                    dbContext.Database.EnsureCreated();
+                    services.Configure<JwtBearerOptions>
+                    (
+                        JwtBearerDefaults.AuthenticationScheme,
+                        options =>
+                        {
+                            options.Configuration = new OpenIdConnectConfiguration
+                            {
+                                Issuer = JwtTokenProvider.Issuer,
+                            };
+                            options.TokenValidationParameters.ValidIssuer = JwtTokenProvider.Issuer;
+                            options.TokenValidationParameters.ValidAudience = JwtTokenProvider.Issuer;
+                            options.Configuration.SigningKeys.Add(JwtTokenProvider.SecurityKey);
+                        }
+                    );
+
+                    static void SetupLocalDb(IServiceCollection services)
+                    {
+                        var connString = GetConnectionString();
+                        services.AddSqlServer<BirdboardDbContext>(connString);
+
+                        var dbContext = CreateDbContext(services);
+                        dbContext.Database.EnsureDeleted();
+                    }
+
+                    static void SetupTestContainerDb(IServiceCollection services, string connString)
+                    {
+                        services.AddSqlServer<BirdboardDbContext>(connString);
+
+                        var scope = services.BuildServiceProvider().CreateScope();
+                        var dbContext = scope.ServiceProvider.GetRequiredService<BirdboardDbContext>();
+                        dbContext.Database.EnsureCreated();
+                    }
                 });
             }
-        }
-    }
 
-    [CollectionDefinition(nameof(IntegrationFixtureCollection))]
-    public class IntegrationFixtureCollection : ICollectionFixture<IntegrationFixture>
-    {
+            private static string? GetConnectionString()
+            {
+                var configuration = new ConfigurationBuilder()
+                    .AddUserSecrets<IntegrationFixture>()
+                    .Build();
 
-    }
+                var connString = configuration.GetConnectionString("Test");
 
-    [Collection(nameof(IntegrationFixtureCollection))]
-    public class IntegrationTest : IAsyncLifetime
-    {
-        public IntegrationFixture IntegrationFixture { get; }
-        public HttpClient Client => IntegrationFixture.Client;
-        public IServiceScope Scope { get; set; }
-        public IServiceProvider Services => Scope.ServiceProvider;
-        public BirdboardDbContext DbContext => Services.GetRequiredService<BirdboardDbContext>();
+                return connString;
+            }
 
-        public IntegrationTest(IntegrationFixture integrationFixture)
-        {
-            IntegrationFixture = integrationFixture;
-        }
-
-        public Task InitializeAsync()
-        {
-            Scope = IntegrationFixture.App.Services.CreateScope();
-            return Task.CompletedTask;
-        }
-
-        public async Task DisposeAsync()
-        {
-            Scope.Dispose();
-            await IntegrationFixture.ResetDatabaseAsync();
+            private static BirdboardDbContext CreateDbContext(IServiceCollection services)
+            {
+                var serviceProvider = services.BuildServiceProvider();
+                var scope = serviceProvider.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<BirdboardDbContext>();
+                return dbContext;
+            }
         }
     }
 }
