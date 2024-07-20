@@ -4,6 +4,7 @@ using Birdboard.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Birdboard.API.Migrations
 {
     [DbContext(typeof(BirdboardDbContext))]
-    partial class BirdboardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240720073931_MoreAppUserProps")]
+    partial class MoreAppUserProps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,22 +161,6 @@ namespace Birdboard.API.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "c93b1387-0c0e-48d0-aa4d-e29046843eef",
-                            ConcurrencyStamp = "5c9fca89-f7bf-4492-9506-841f2a8828d5",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "92ef523e-0624-48d3-9559-518bed02278d",
-                            ConcurrencyStamp = "cbe10d96-a1b2-4a62-b64b-0f62a605870c",
-                            Name = "User",
-                            NormalizedName = "USER"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
