@@ -28,6 +28,8 @@ public class ProjectRepository : IProjectRepository
 
     public async Task<Project?> GetByIdAsync(int id)
     {
-        return await _context.Projects.FirstOrDefaultAsync(i => i.Id == id);
+        return await _context.Projects
+            .Include(p => p.Owner)
+            .FirstOrDefaultAsync(i => i.Id == id);
     }
 }

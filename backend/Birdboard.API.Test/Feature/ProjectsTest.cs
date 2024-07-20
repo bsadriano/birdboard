@@ -32,7 +32,13 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void GuestsCannotViewASingleProject()
     {
-        var request = await Client.GetAsync(HttpHelper.Urls.GetProjects);
+        var user = await _userFactory.Create();
+        var project = await _projectFactory
+            .WithOwner(user)
+            .Create();
+
+        var request = await Client.GetAsync(project.Path());
+
         request.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
     }
 
