@@ -30,7 +30,7 @@ public class AuthController : ControllerBase
     [HttpGet, Authorize]
     public ActionResult<string> GetMe()
     {
-        return Ok(_userService.GetUserName());
+        return Ok(_userService.GetAuthUserName());
     }
 
     [HttpPost("register")]
@@ -102,7 +102,7 @@ public class AuthController : ControllerBase
     {
         var refreshToken = Request.Cookies["refreshToken"];
         var user = await _userManager.Users
-            .FirstOrDefaultAsync(user => user.Id == _userService.GetId());
+            .FirstOrDefaultAsync(user => user.Id == _userService.GetAuthId());
 
         if (!user.RefreshToken.Equals(refreshToken))
             return Unauthorized("Invalid Refresh Token");
@@ -119,7 +119,7 @@ public class AuthController : ControllerBase
     private async Task SetRefreshToken(RefreshToken newRefreshToken)
     {
         var user = await _userManager.Users
-            .FirstOrDefaultAsync(user => user.Id == _userService.GetId());
+            .FirstOrDefaultAsync(user => user.Id == _userService.GetAuthId());
 
         var cookieOptions = new CookieOptions
         {

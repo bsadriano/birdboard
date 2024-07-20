@@ -48,6 +48,9 @@ public class ProjectController : ControllerBase
 
         var project = await _projectRepository.GetByIdAsync(id);
 
+        if (project.OwnerId != _userService.GetAuthId())
+            return Unauthorized();
+
         return project == null
             ? NotFound()
             : Ok(project.ToProjectDto());
@@ -61,8 +64,7 @@ public class ProjectController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var userId = _userService.GetId();
-        var appUser = await _userManager.FindByIdAsync(userId);
+        var appUser = await _userManager.FindByIdAsync(_userService.GetAuthId());
 
         if (appUser == null)
         {

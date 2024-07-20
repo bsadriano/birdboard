@@ -14,7 +14,7 @@ public class UserService : IUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public string? GetId()
+    public string? GetAuthId()
     {
         var result = string.Empty;
 
@@ -26,7 +26,7 @@ public class UserService : IUserService
         return result;
     }
 
-    public string? GetUserName()
+    public string? GetAuthUserName()
     {
         var result = string.Empty;
 

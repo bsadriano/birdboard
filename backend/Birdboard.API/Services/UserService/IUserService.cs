@@ -4,7 +4,7 @@ namespace Birdboard.API.Services.UserService;
 
 public interface IUserService
 {
-    public string? GetId();
-    public string? GetUserName();
+    public string? GetAuthId();
+    public string? GetAuthUserName();
     public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt);
 }
