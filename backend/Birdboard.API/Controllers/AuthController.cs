@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
         return Ok(_userService.GetUserName());
     }
 
-    [HttpPost("registerz")]
+    [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterUserDto request)
     {
         try
