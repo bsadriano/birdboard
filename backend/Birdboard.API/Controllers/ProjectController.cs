@@ -11,6 +11,7 @@ namespace Birdboard.API.Controllers;
 
 [ApiController]
 [Route("api/projects")]
+[Authorize]
 public class ProjectController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -24,7 +25,7 @@ public class ProjectController : ControllerBase
         _userManager = userManager;
     }
 
-    [HttpGet, Authorize]
+    [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectDto>))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetAll()
@@ -37,7 +38,7 @@ public class ProjectController : ControllerBase
         );
     }
 
-    [HttpGet, Authorize]
+    [HttpGet]
     [Route("{id:int}")]
     [ProducesResponseType(200, Type = typeof(ProjectDto))]
     [ProducesResponseType(400)]
@@ -56,7 +57,7 @@ public class ProjectController : ControllerBase
             : Ok(project.ToProjectDto());
     }
 
-    [HttpPost, Authorize]
+    [HttpPost]
     [ProducesResponseType(201, Type = typeof(ProjectDto))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateProject([FromBody] CreateProjectRequestDto createProjectDto)
