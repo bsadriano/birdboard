@@ -1,15 +1,14 @@
 using Birdboard.API.Dtos.Project;
-using Birdboard.API.Mappers;
 using Birdboard.API.Models;
 using Bogus;
 
-namespace Birdboard.API.Test.Fixtures;
+namespace Birdboard.API.Test.Factories;
 
-public class DataFixture
+public class ProjectFactory
 {
     public AppUser? Owner { get; set; }
 
-    public DataFixture WithOwner(AppUser user)
+    public ProjectFactory WithOwner(AppUser user)
     {
         Owner = user;
         return this;
@@ -23,18 +22,6 @@ public class DataFixture
     public Project GetProject(bool useNewSeed = false)
     {
         return GetProjects(1, useNewSeed)[0];
-    }
-
-
-    public CreateProjectRequestDto GetCreateProjectRequestDto(bool useNewSeed = false)
-    {
-        var project = GetProjects(1, useNewSeed)[0];
-
-        return new CreateProjectRequestDto
-        {
-            Title = project.Title,
-            Description = project.Description
-        };
     }
 
     private Faker<Project> GetProjectFaker(bool useNewSeed)

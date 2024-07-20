@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Birdboard.API.Test.Feature;
 
 [Collection(nameof(IntegrationFixtureCollection))]
-public class IntegrationTest : IAsyncLifetime
+public abstract class IntegrationTest : IAsyncLifetime
 {
     public IntegrationFixture IntegrationFixture { get; }
     public HttpClient Client => IntegrationFixture.Client;
@@ -39,7 +39,7 @@ public class IntegrationTest : IAsyncLifetime
         AppUser user = new AppUser
         {
             UserName = userName,
-            PasswordHash = passwordHash,
+            PasswordHash = Convert.ToBase64String(passwordHash),
             PasswordSalt = passwordSalt
         };
         await DbContext.Users.AddAsync(user);

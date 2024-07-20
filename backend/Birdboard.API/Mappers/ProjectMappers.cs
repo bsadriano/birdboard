@@ -21,4 +21,11 @@ public static class ProjectMappers
             Title = projectDto.Title,
             Description = projectDto.Description,
         };
+
+    public static CreateProjectRequestDto ToCreateProjectRequestDto(this Project projectModel) =>
+        new CreateProjectRequestDto
+        {
+            Title = projectModel.Title,
+            Description = projectModel.Description
+        };
 }

@@ -1,7 +1,7 @@
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Birdboard.API.Mappers;
 using Birdboard.API.Models;
-using Birdboard.API.Test.Fixtures;
+using Birdboard.API.Test.Factories;
 using Birdboard.API.Test.Helper;
 using FluentAssertions;
 
@@ -16,7 +16,7 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void OnlyAuthenticatedUsersCanCreateAProject()
     {
-        var newProject = new DataFixture().GetCreateProjectRequestDto();
+        var newProject = new ProjectFactory().GetProject().ToCreateProjectRequestDto();
 
         var httpContent = Http.BuildContent(newProject);
         var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
@@ -28,7 +28,8 @@ public class ProjectsTest : IntegrationTest
     {
         await LoginAs("john", "john123!");
 
-        var newProject = new DataFixture().GetCreateProjectRequestDto();
+        var newProject = new ProjectFactory().GetProject().ToCreateProjectRequestDto();
+
         var httpContent = Http.BuildContent(newProject);
         var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
         request.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
@@ -49,7 +50,7 @@ public class ProjectsTest : IntegrationTest
     {
         var john = await LoginAs("john", "john123!");
 
-        var newProject = new DataFixture().WithOwner(john).GetProject();
+        var newProject = new ProjectFactory().WithOwner(john).GetProject();
         await DbContext.Projects.AddAsync(newProject);
         await DbContext.SaveChangesAsync();
 
@@ -62,7 +63,11 @@ public class ProjectsTest : IntegrationTest
     {
         var john = await LoginAs("john", "john123!");
 
-        var newProject = new DataFixture().WithOwner(john).GetCreateProjectRequestDto();
+        var newProject = new ProjectFactory()
+            .WithOwner(john)
+            .GetProject()
+            .ToCreateProjectRequestDto();
+
         newProject.Title = "";
 
         var httpContent = Http.BuildContent(newProject);
@@ -75,7 +80,11 @@ public class ProjectsTest : IntegrationTest
     {
         var john = await LoginAs("john", "john123!");
 
-        var newProject = new DataFixture().WithOwner(john).GetCreateProjectRequestDto();
+        var newProject = new ProjectFactory()
+            .WithOwner(john)
+            .GetProject()
+            .ToCreateProjectRequestDto();
+
         newProject.Description = "";
 
         var httpContent = Http.BuildContent(newProject);
