@@ -80,9 +80,24 @@ public class ProjectsTest : IntegrationTest
     }
 
     [Fact]
+    public async void AnAuthenticatedUserCannotViewTheProjectsOfOthers()
+    {
+        var user = await _userFactory.Create(true);
+        var otherUser = await _userFactory.Create(true);
+        LoginAs(user);
+
+        var project = await _projectFactory
+            .WithOwner(otherUser)
+            .Create();
+
+        var response = await Client.GetAsync(project.Path());
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
     public async void AProjectRequiresATitle()
     {
-        var user = await new UserFactory(DbContext).Create();
+        var user = await _userFactory.Create();
         LoginAs(user);
 
         var newProject = _projectFactory
