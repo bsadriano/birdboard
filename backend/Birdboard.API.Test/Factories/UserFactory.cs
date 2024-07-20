@@ -8,6 +8,13 @@ namespace Birdboard.API.Test.Factories;
 
 public class UserFactory
 {
+    public BirdboardDbContext DbContext { get; set; }
+
+    public UserFactory(BirdboardDbContext dbContext = null)
+    {
+        DbContext = dbContext;
+    }
+
     public List<RegisterUserDto> GetUsers(int count, bool useNewSeed = false)
     {
         return GetUserFaker(useNewSeed).Generate(count);
@@ -18,9 +25,9 @@ public class UserFactory
         return GetUsers(1, useNewSeed)[0];
     }
 
-    public async Task<AppUser> Create(BirdboardDbContext dbContext)
+    public async Task<AppUser> Create(bool useNewSeed = false)
     {
-        var userDto = GetUser();
+        var userDto = GetUser(useNewSeed);
         JwtTokenHelper.CreatePasswordHash(userDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
         AppUser user = new AppUser
         {
@@ -29,8 +36,8 @@ public class UserFactory
             PasswordHash = Convert.ToBase64String(passwordHash),
             PasswordSalt = passwordSalt
         };
-        await dbContext.Users.AddAsync(user);
-        await dbContext.SaveChangesAsync();
+        await DbContext.Users.AddAsync(user);
+        await DbContext.SaveChangesAsync();
 
         return user;
     }

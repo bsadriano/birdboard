@@ -1,14 +1,18 @@
 using Birdboard.API.Data;
-using Birdboard.API.Dtos.Project;
 using Birdboard.API.Models;
 using Bogus;
-using Microsoft.EntityFrameworkCore;
 
 namespace Birdboard.API.Test.Factories;
 
 public class ProjectFactory
 {
+    public BirdboardDbContext DbContext { get; set; }
     public AppUser? Owner { get; set; }
+
+    public ProjectFactory(BirdboardDbContext dbContext = null)
+    {
+        DbContext = dbContext;
+    }
 
     public ProjectFactory WithOwner(AppUser user)
     {
@@ -26,11 +30,11 @@ public class ProjectFactory
         return GetProjects(1, useNewSeed)[0];
     }
 
-    public async Task<Project> Create(BirdboardDbContext dbContext)
+    public async Task<Project> Create()
     {
         var newProject = GetProject();
-        await dbContext.Projects.AddAsync(newProject);
-        await dbContext.SaveChangesAsync();
+        await DbContext.Projects.AddAsync(newProject);
+        await DbContext.SaveChangesAsync();
 
         return newProject;
     }

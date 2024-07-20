@@ -2,7 +2,6 @@ using System.Net.Http.Headers;
 using Birdboard.API.Data;
 using Birdboard.API.Models;
 using Birdboard.API.Test.Factories;
-using Birdboard.API.Test.Helper;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Birdboard.API.Test.Feature;
@@ -15,6 +14,8 @@ public abstract class IntegrationTest : IAsyncLifetime
     public IServiceScope Scope { get; set; }
     public IServiceProvider Services => Scope.ServiceProvider;
     public BirdboardDbContext DbContext => Services.GetRequiredService<BirdboardDbContext>();
+    public UserFactory _userFactory { get; set; }
+    public ProjectFactory _projectFactory { get; set; }
 
     public IntegrationTest(IntegrationFixture integrationFixture)
     {
@@ -25,6 +26,8 @@ public abstract class IntegrationTest : IAsyncLifetime
     {
         Scope = IntegrationFixture.App.Services.CreateScope();
         Client.DefaultRequestHeaders.Authorization = null;
+        _userFactory = new UserFactory(DbContext);
+        _projectFactory = new ProjectFactory(DbContext);
         return Task.CompletedTask;
     }
 

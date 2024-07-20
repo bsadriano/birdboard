@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Birdboard.API.Models;
 
 namespace Birdboard.API.Services.UserService;
 

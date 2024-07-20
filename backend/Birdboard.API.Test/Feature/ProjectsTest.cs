@@ -3,7 +3,6 @@ using Birdboard.API.Mappers;
 using Birdboard.API.Models;
 using Birdboard.API.Test.Factories;
 using Birdboard.API.Test.Helper;
-using FluentAssertions;
 
 namespace Birdboard.API.Test.Feature;
 
@@ -16,7 +15,7 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void GuestsCannotCreateAProject()
     {
-        var newProject = new ProjectFactory().GetProject().ToCreateProjectRequestDto();
+        var newProject = _projectFactory.GetProject().ToCreateProjectRequestDto();
 
         var httpContent = Http.BuildContent(newProject);
         var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
@@ -40,10 +39,10 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void AUserCanCreateAProject()
     {
-        var user = await new UserFactory().Create(DbContext);
+        var user = await _userFactory.Create();
         LoginAs(user);
 
-        var newProject = new ProjectFactory().GetProject().ToCreateProjectRequestDto();
+        var newProject = _projectFactory.GetProject().ToCreateProjectRequestDto();
 
         var httpContent = Http.BuildContent(newProject);
         var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
@@ -61,14 +60,14 @@ public class ProjectsTest : IntegrationTest
     }
 
     [Fact]
-    public async void AUserCanViewAProject()
+    public async void AUserCanViewTheirProject()
     {
-        var user = await new UserFactory().Create(DbContext);
+        var user = await _userFactory.Create(true);
         LoginAs(user);
 
-        var newProject = await new ProjectFactory()
+        var newProject = await _projectFactory
             .WithOwner(user)
-            .Create(DbContext);
+            .Create();
 
         var response = await Client.GetAsync(newProject.Path());
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
@@ -77,10 +76,10 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void AProjectRequiresATitle()
     {
-        var user = await new UserFactory().Create(DbContext);
+        var user = await new UserFactory(DbContext).Create();
         LoginAs(user);
 
-        var newProject = new ProjectFactory()
+        var newProject = _projectFactory
             .WithOwner(user)
             .GetProject()
             .ToCreateProjectRequestDto();
@@ -95,10 +94,10 @@ public class ProjectsTest : IntegrationTest
     [Fact]
     public async void AProjectRequiresADescription()
     {
-        var user = await new UserFactory().Create(DbContext);
+        var user = await _userFactory.Create();
         LoginAs(user);
 
-        var newProject = new ProjectFactory()
+        var newProject = _projectFactory
             .WithOwner(user)
             .GetProject()
             .ToCreateProjectRequestDto();
