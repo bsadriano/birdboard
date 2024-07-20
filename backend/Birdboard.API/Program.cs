@@ -2,10 +2,14 @@ using Birdboard.API.Data;
 using Birdboard.API.Models;
 using Birdboard.API.Repositories;
 using Birdboard.API.Repositories.Interfaces;
+using Birdboard.API.Services.TokenService;
+using Birdboard.API.Services.UserService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +18,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
 
 
 builder.Services.AddDbContext<BirdboardDbContext>(options =>
@@ -55,6 +69,15 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddHttpContextAccessor();
+
+// builder.Services.AddCors(options => options.AddPolicy(name: "NgOrigins",
+//     policy =>
+//     {
+//         policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+//     }));
 
 var app = builder.Build();
 
