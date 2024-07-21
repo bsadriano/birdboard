@@ -1,4 +1,4 @@
-using Birdboard.API.Dtos.Project;
+using Birdboard.API.Dtos.ProjectTask;
 using Birdboard.API.Mappers;
 using Birdboard.API.Models;
 using Birdboard.API.Repositories.Interfaces;
@@ -107,5 +107,27 @@ public class ProjectTasksController : ControllerBase
         {
             return StatusCode(500, e);
         }
+    }
+
+    [HttpPatch]
+    [Route("{taskId:int}")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectTaskDto>))]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> UpdateProjectTask([FromRoute] int projectId, [FromRoute] int taskId, [FromBody] UpdateProjectTaskRequestDto updateProjectTaskDto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var project = await _projectRepository.GetByIdAsync(projectId);
+
+        if (project!.OwnerId != _userService.GetAuthId())
+            return StatusCode(403);
+
+        var projectTask = await _projectTaskRepository.UpdateAsync(taskId, updateProjectTaskDto);
+
+        if (projectTask == null)
+            return NotFound();
+
+        return NoContent();
     }
 }

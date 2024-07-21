@@ -1,4 +1,5 @@
 using Birdboard.API.Data;
+using Birdboard.API.Dtos.Project;
 using Birdboard.API.Models;
 using Birdboard.API.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -31,5 +32,21 @@ public class ProjectRepository : IProjectRepository
         return await _context.Projects
             .Include(p => p.Owner)
             .FirstOrDefaultAsync(i => i.Id == id);
+    }
+
+    public async Task<Project?> UpdateAsync(int id, UpdateProjectRequestDto model)
+    {
+        var project = await GetByIdAsync(id);
+
+        if (project == null)
+            return null;
+
+        if (model.Title != null)
+            project.Title = model.Title;
+        if (model.Description != null)
+            project.Description = model.Description;
+
+        await _context.SaveChangesAsync();
+        return project;
     }
 }

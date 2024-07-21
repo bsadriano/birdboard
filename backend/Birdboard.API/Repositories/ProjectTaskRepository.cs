@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Birdboard.API.Data;
+using Birdboard.API.Dtos.ProjectTask;
 using Birdboard.API.Models;
 using Birdboard.API.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +36,21 @@ namespace Birdboard.API.Repositories
                 .Include(p => p.Project)
                 .ThenInclude(p => p.Owner)
                 .FirstOrDefaultAsync(i => i.Id == id);
+        }
+
+        public async Task<ProjectTask?> UpdateAsync(int id, UpdateProjectTaskRequestDto projectTaskDto)
+        {
+            var projectTask = await GetByIdAsync(id);
+
+            if (projectTask == null)
+                return null;
+
+            projectTask.Body = projectTaskDto.Body;
+            if (projectTaskDto.Completed != null)
+                projectTask.Completed = (bool)projectTaskDto.Completed;
+
+            await _context.SaveChangesAsync();
+            return projectTask;
         }
     }
 }
