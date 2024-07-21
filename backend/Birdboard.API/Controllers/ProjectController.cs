@@ -50,7 +50,7 @@ public class ProjectController : ControllerBase
         var project = await _projectRepository.GetByIdAsync(id);
 
         if (project.OwnerId != _userService.GetAuthId())
-            return Unauthorized();
+            return StatusCode(403);
 
         return project == null
             ? NotFound()
