@@ -40,7 +40,7 @@ const ListProjects = (props: Props) => {
   return (
     <>
       <header className="flex items-center mb-3 py-4">
-        <div className="flex justify-between items-center w-full">
+        <div className="flex justify-between items-end w-full">
           <h2 className="text-grey text-sm font-normal">My Projects</h2>
           <Link className="button" to="/projects/create">
             New Project
@@ -52,10 +52,7 @@ const ListProjects = (props: Props) => {
         {projects ? (
           projects.map((project) => (
             <div className="lg:w-1/3 px-3 pb-6">
-              <div
-                className="bg-white p-5 rounded-lg shadow"
-                style={{ height: "200px" }}
-              >
+              <div className="card" style={{ height: "200px" }}>
                 <h3 className="font-normal text-xl py-4 -ml-5 mb-3 border-l-4 border-blue-light pl-4">
                   <Link to={project.path}>{project.title}</Link>
                 </h3>
