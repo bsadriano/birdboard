@@ -1,36 +1,41 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
+using Birdboard.API.Dtos.ProjectTask;
 using Birdboard.API.Mappers;
 using Birdboard.API.Models;
 using Birdboard.API.Test.Helper;
-using FluentAssertions.Specialized;
 
 namespace Birdboard.API.Test.Feature
 {
     public class ProjectTasksTest : AbstractIntegrationTest
     {
+        public AppUser user { get; set; }
+        public Project project { get; set; }
+        public CreateProjectTaskRequestDto projectTaskDto { get; set; }
+
         public ProjectTasksTest(IntegrationFixture integrationFixture) : base(integrationFixture)
         {
+        }
+
+        public override async Task InitializeAsync()
+        {
+            await base.InitializeAsync();
+
+            user = await _userFactory.Create();
+
+            await SignIn(user);
+
+            project = await _projectFactory
+                .WithOwner(user)
+                .Create();
+
+            projectTaskDto = _projectTaskFactory
+                .GetProjectTask(true)
+                .ToCreateProjectTaskRequestDto();
         }
 
         [Fact]
         public async void AProjectCanHaveTasks()
         {
-            var user = await _userFactory.Create();
-
-            await SignIn(user);
-
-            var project = await _projectFactory
-                .WithOwner(user)
-                .Create();
-
-            var projectTaskDto = _projectTaskFactory
-                .GetProjectTask(true)
-                .ToCreateProjectTaskRequestDto();
-
             var httpContent = Http.BuildContent(projectTaskDto);
             var response = await Client.PostAsync(HttpHelper.Urls.ProjectTasks(project.Id), httpContent);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
@@ -47,19 +52,23 @@ namespace Birdboard.API.Test.Feature
         }
 
         [Fact]
-        public async void AProjectRequiresADescription()
+        public async void ATaskCanBeUpdated()
         {
-            var user = await _userFactory.Create();
+            var projectTask = await _projectTaskFactory
+                .WithProject(project)
+                .Create(true);
 
-            await SignIn(user);
+            var httpContent = Http.BuildContent(projectTaskDto);
+            var response = await Client.PatchAsync(projectTask.Path(), httpContent);
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
 
-            var project = await _projectFactory
-                .WithOwner(user)
-                .Create();
+            var updatedTask = DbContext.ProjectTasks.FirstOrDefault(p => p.Body == projectTaskDto.Body);
+            updatedTask.Should().NotBeNull();
+        }
 
-            var projectTaskDto = _projectTaskFactory
-                .GetProjectTask(true)
-                .ToCreateProjectTaskRequestDto();
+        [Fact]
+        public async void AProjectRequiresABody()
+        {
             projectTaskDto.Body = "";
 
             var httpContent = Http.BuildContent(projectTaskDto);
@@ -70,23 +79,33 @@ namespace Birdboard.API.Test.Feature
         [Fact]
         public async void OnlyTheOwnerOfAProjectMayAddTasks()
         {
-            var user = await _userFactory.Create();
-
-            await SignIn(user);
-
             var otherUser = await _userFactory.Create();
-            var project = await _projectFactory
+            project = await _projectFactory
                 .WithOwner(otherUser)
                 .Create();
-
-            var projectTaskDto = _projectTaskFactory
-                .GetProjectTask(true)
-                .ToCreateProjectTaskRequestDto();
 
             var httpContent = Http.BuildContent(projectTaskDto);
             var response = await Client.PostAsync(HttpHelper.Urls.ProjectTasks(project.Id), httpContent);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
+        }
 
+        [Fact]
+        public async void OnlyTheOwnerOfAProjectMayUpdateATask()
+        {
+            var otherUser = await _userFactory.Create();
+            var otherProject = await _projectFactory
+                .WithOwner(otherUser)
+                .Create(true);
+            var otherProjectTask = await _projectTaskFactory
+                .WithProject(otherProject)
+                .Create(true);
+
+            var httpContent = Http.BuildContent(projectTaskDto);
+            var response = await Client.PatchAsync(otherProjectTask.Path(), httpContent);
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
+
+            var updatedTask = DbContext.ProjectTasks.FirstOrDefault(p => p.Body == projectTaskDto.Body);
+            updatedTask.Should().BeNull();
         }
     }
 }

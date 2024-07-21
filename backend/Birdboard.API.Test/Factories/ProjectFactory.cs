@@ -30,9 +30,9 @@ public class ProjectFactory
         return GetProjects(1, useNewSeed)[0];
     }
 
-    public async Task<Project> Create()
+    public async Task<Project> Create(bool useNewSeed = false)
     {
-        var newProject = GetProject();
+        var newProject = GetProject(useNewSeed);
         await DbContext.Projects.AddAsync(newProject);
         await DbContext.SaveChangesAsync();
 
@@ -55,9 +55,7 @@ public class ProjectFactory
             .RuleFor(t => t.UpdatedAt, (faker, t) => faker.Date.Past(5, new DateTime(2020, 1, 1)));
 
         if (Owner != null)
-        {
             faker.RuleFor(t => t.Owner, o => Owner);
-        }
 
         return faker.UseSeed(seed);
     }

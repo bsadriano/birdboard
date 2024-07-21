@@ -23,7 +23,7 @@ public abstract class AbstractIntegrationTest : IAsyncLifetime
         IntegrationFixture = integrationFixture;
     }
 
-    public Task InitializeAsync()
+    public virtual Task InitializeAsync()
     {
         Scope = IntegrationFixture.App.Services.CreateScope();
         Client.DefaultRequestHeaders.Authorization = null;
