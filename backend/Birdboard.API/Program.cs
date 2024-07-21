@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,11 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+    });
 
 builder.Services.AddDbContext<BirdboardDbContext>(options =>
 {
