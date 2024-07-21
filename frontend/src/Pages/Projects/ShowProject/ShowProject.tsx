@@ -10,6 +10,7 @@ const ShowProject = (props: Props) => {
 
   useEffect(() => {
     setProject({
+      id: 1,
       title: "title",
       description: "description",
       path: "/projects/1",
@@ -35,11 +36,13 @@ const ShowProject = (props: Props) => {
             <div className="mb-8">
               <h2 className="text-grey font-normal text-lg mb-3">Tasks</h2>
               {/* Tasks */}
-              <div className="card mb-3">Lorem, ipsum.</div>
-              <div className="card mb-3">Lorem, ipsum.</div>
-              <div className="card mb-3">Lorem, ipsum.</div>
-              <div className="card mb-3">Lorem, ipsum.</div>
-              <div className="card">Lorem, ipsum.</div>
+              {project?.tasks ? (
+                project.tasks.map((project) => (
+                  <div className="card mb-3">{project.body}</div>
+                ))
+              ) : (
+                <></>
+              )}
             </div>
 
             <div>
