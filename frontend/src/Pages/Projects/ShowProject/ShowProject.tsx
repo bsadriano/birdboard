@@ -45,14 +45,20 @@ const ShowProject = (props: Props) => {
           <div className="lg:w-3/4 px-3">
             <div className="mb-8">
               <h2 className="text-grey font-normal text-lg mb-3">Tasks</h2>
-              {/* Tasks */}
-              {project?.tasks ? (
-                project.tasks.map((project) => (
+              {project?.tasks &&
+                project?.tasks?.map((project) => (
                   <div className="card mb-3">{project.body}</div>
-                ))
-              ) : (
-                <></>
-              )}
+                ))}
+              <div className="card mb-3">
+                <form action="#">
+                  <input
+                    type="text"
+                    placeholder="Begin adding tasks..."
+                    className="w-full"
+                    name="body"
+                  />
+                </form>
+              </div>
             </div>
 
             <div>
