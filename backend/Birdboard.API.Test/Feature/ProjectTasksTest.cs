@@ -66,5 +66,27 @@ namespace Birdboard.API.Test.Feature
             var response = await Client.PostAsync(HttpHelper.Urls.ProjectTasks(project.Id), httpContent);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
         }
+
+        [Fact]
+        public async void OnlyTheOwnerOfAProjectMayAddTasks()
+        {
+            var user = await _userFactory.Create();
+
+            await SignIn(user);
+
+            var otherUser = await _userFactory.Create();
+            var project = await _projectFactory
+                .WithOwner(otherUser)
+                .Create();
+
+            var projectTaskDto = _projectTaskFactory
+                .GetProjectTask(true)
+                .ToCreateProjectTaskRequestDto();
+
+            var httpContent = Http.BuildContent(projectTaskDto);
+            var response = await Client.PostAsync(HttpHelper.Urls.ProjectTasks(project.Id), httpContent);
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
+
+        }
     }
 }

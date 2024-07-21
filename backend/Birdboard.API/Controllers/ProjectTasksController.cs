@@ -1,8 +1,10 @@
 using Birdboard.API.Dtos.Project;
 using Birdboard.API.Mappers;
+using Birdboard.API.Models;
 using Birdboard.API.Repositories.Interfaces;
 using Birdboard.API.Services.UserService;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Birdboard.API.Controllers;
@@ -13,12 +15,20 @@ namespace Birdboard.API.Controllers;
 public class ProjectTasksController : ControllerBase
 {
     private readonly IProjectTaskRepository _projectTaskRepository;
+    private readonly IProjectRepository _projectRepository;
     private readonly IUserService _userService;
+    private readonly UserManager<AppUser> _userManager;
 
-    public ProjectTasksController(IProjectTaskRepository projectTaskRepository, IUserService userService)
+    public ProjectTasksController(
+        IProjectTaskRepository projectTaskRepository,
+        IProjectRepository projectRepository,
+        IUserService userService,
+        UserManager<AppUser> userManager)
     {
         _projectTaskRepository = projectTaskRepository;
+        _projectRepository = projectRepository;
         _userService = userService;
+        _userManager = userManager;
     }
 
     [HttpGet]
@@ -51,7 +61,7 @@ public class ProjectTasksController : ControllerBase
                 return NotFound();
 
             if (projectTask.Project.OwnerId != _userService.GetAuthId())
-                return Unauthorized();
+                return StatusCode(403);
 
             return Ok(projectTask.ToProjectTaskDto());
         }
@@ -72,17 +82,19 @@ public class ProjectTasksController : ControllerBase
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // var appUser = await _userManager.FindByIdAsync(_userService.GetAuthId());
+            var project = await _projectRepository.GetByIdAsync(projectId);
 
-            // if (appUser == null)
-            // {
-            //     return BadRequest("Logged in user not found");
-            // }
+            if (project!.OwnerId != _userService.GetAuthId())
+                return StatusCode(403);
+
+            var appUser = await _userManager.FindByIdAsync(_userService.GetAuthId());
+
+            if (appUser == null)
+                return BadRequest("Logged in user not found");
 
             var projectTaskModel = createProjectTaskDto.ToProjectTask();
             projectTaskModel.ProjectId = projectId;
 
-            // projectModel.OwnerId = appUser.Id;
             await _projectTaskRepository.CreateAsync(projectTaskModel);
 
             return CreatedAtAction(
