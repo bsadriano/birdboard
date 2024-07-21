@@ -15,8 +15,7 @@ const ListProjects = (props: Props) => {
   }, []);
   return (
     <>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <h1 style={{ marginRight: "auto" }}>Birdboard</h1>
+      <div className="flex items-center mb-3">
         <Link to="/projects/create">New Project</Link>
       </div>
 
