@@ -14,10 +14,16 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
     }
 
     public DbSet<Project> Projects { get; set; }
+    public DbSet<ProjectTask> ProjectTasks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<ProjectTask>()
+            .HasOne(o => o.Project)
+            .WithMany(p => p.Tasks)
+            .HasForeignKey(p => p.ProjectId);
 
         List<IdentityRole> roles = new List<IdentityRole>
             {

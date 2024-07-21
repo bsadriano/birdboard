@@ -14,11 +14,11 @@ public class ProjectRepository : IProjectRepository
         _context = context;
     }
 
-    public async Task<Project> CreateAsync(Project projectModel)
+    public async Task<Project> CreateAsync(Project model)
     {
-        await _context.Projects.AddAsync(projectModel);
+        await _context.Projects.AddAsync(model);
         await _context.SaveChangesAsync();
-        return projectModel;
+        return model;
     }
 
     public async Task<List<Project>> GetAllAsync()
