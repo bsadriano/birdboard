@@ -5,7 +5,7 @@ using Birdboard.API.Test.Helper;
 
 namespace Birdboard.API.Test.Feature;
 
-public class ManageProjectsTest : IntegrationTest
+public class ManageProjectsTest : AbstractIntegrationTest
 {
     public ManageProjectsTest(IntegrationFixture integrationFixture) : base(integrationFixture)
     {
@@ -17,7 +17,7 @@ public class ManageProjectsTest : IntegrationTest
         var newProject = _projectFactory.GetProject().ToCreateProjectRequestDto();
         var httpContent = Http.BuildContent(newProject);
 
-        Client.PostAsync(HttpHelper.Urls.AddProject, httpContent)
+        Client.PostAsync(HttpHelper.Urls.Projects, httpContent)
             .Result.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
 
         var user = await _userFactory.Create();
@@ -25,7 +25,7 @@ public class ManageProjectsTest : IntegrationTest
             .WithOwner(user)
             .Create();
 
-        Client.GetAsync(HttpHelper.Urls.GetProjects)
+        Client.GetAsync(HttpHelper.Urls.Projects)
             .Result.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
 
         Client.GetAsync(project.Path())
@@ -36,16 +36,15 @@ public class ManageProjectsTest : IntegrationTest
     [Fact]
     public async void AUserCanCreateAProject()
     {
-        var user = await _userFactory.Create();
-        LoginAs(user);
+        await SignIn();
 
         var newProject = _projectFactory.GetProject().ToCreateProjectRequestDto();
 
         var httpContent = Http.BuildContent(newProject);
-        var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
+        var request = await Client.PostAsync(HttpHelper.Urls.Projects, httpContent);
         request.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
 
-        var response = await Client.GetAsync(HttpHelper.Urls.GetProjects);
+        var response = await Client.GetAsync(HttpHelper.Urls.Projects);
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
         var result = await response.Content.ReadFromJsonAsync<List<Project>>();
@@ -60,7 +59,7 @@ public class ManageProjectsTest : IntegrationTest
     public async void AUserCanViewTheirProject()
     {
         var user = await _userFactory.Create(true);
-        LoginAs(user);
+        await SignIn(user);
 
         var newProject = await _projectFactory
             .WithOwner(user)
@@ -73,12 +72,12 @@ public class ManageProjectsTest : IntegrationTest
     [Fact]
     public async void AnAuthenticatedUserCannotViewTheProjectsOfOthers()
     {
+        await SignIn();
+
         var user = await _userFactory.Create(true);
-        var otherUser = await _userFactory.Create(true);
-        LoginAs(user);
 
         var project = await _projectFactory
-            .WithOwner(otherUser)
+            .WithOwner(user)
             .Create();
 
         var response = await Client.GetAsync(project.Path());
@@ -88,36 +87,32 @@ public class ManageProjectsTest : IntegrationTest
     [Fact]
     public async void AProjectRequiresATitle()
     {
-        var user = await _userFactory.Create();
-        LoginAs(user);
+        await SignIn();
 
         var newProject = _projectFactory
-            .WithOwner(user)
             .GetProject()
             .ToCreateProjectRequestDto();
 
         newProject.Title = "";
 
         var httpContent = Http.BuildContent(newProject);
-        var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
+        var request = await Client.PostAsync(HttpHelper.Urls.Projects, httpContent);
         request.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
 
     [Fact]
     public async void AProjectRequiresADescription()
     {
-        var user = await _userFactory.Create();
-        LoginAs(user);
+        await SignIn();
 
         var newProject = _projectFactory
-            .WithOwner(user)
             .GetProject()
             .ToCreateProjectRequestDto();
 
         newProject.Description = "";
 
         var httpContent = Http.BuildContent(newProject);
-        var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
+        var request = await Client.PostAsync(HttpHelper.Urls.Projects, httpContent);
         request.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
 }

@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Birdboard.API.Test.Feature;
 
 [Collection(nameof(IntegrationFixtureCollection))]
-public abstract class IntegrationTest : IAsyncLifetime
+public abstract class AbstractIntegrationTest : IAsyncLifetime
 {
     public IntegrationFixture IntegrationFixture { get; }
     public HttpClient Client => IntegrationFixture.Client;
@@ -16,8 +16,9 @@ public abstract class IntegrationTest : IAsyncLifetime
     public BirdboardDbContext DbContext => Services.GetRequiredService<BirdboardDbContext>();
     public UserFactory _userFactory { get; set; }
     public ProjectFactory _projectFactory { get; set; }
+    public ProjectTaskFactory _projectTaskFactory { get; set; }
 
-    public IntegrationTest(IntegrationFixture integrationFixture)
+    public AbstractIntegrationTest(IntegrationFixture integrationFixture)
     {
         IntegrationFixture = integrationFixture;
     }
@@ -28,6 +29,7 @@ public abstract class IntegrationTest : IAsyncLifetime
         Client.DefaultRequestHeaders.Authorization = null;
         _userFactory = new UserFactory(DbContext);
         _projectFactory = new ProjectFactory(DbContext);
+        _projectTaskFactory = new ProjectTaskFactory(DbContext);
         return Task.CompletedTask;
     }
 
@@ -37,8 +39,13 @@ public abstract class IntegrationTest : IAsyncLifetime
         await IntegrationFixture.ResetDatabaseAsync();
     }
 
-    protected void LoginAs(AppUser user)
+    protected async Task SignIn(AppUser? appUser = null)
     {
+        var user = appUser;
+
+        if (user == null)
+            user = await _userFactory.Create(true);
+
         var token = new TestJwtToken()
             .WithId(user.Id)
             .WithUserName(user.UserName)

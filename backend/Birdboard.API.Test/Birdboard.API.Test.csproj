@@ -6,11 +6,12 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="34.0.2"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0"/>
-    <PackageReference Include="Testcontainers" Version="3.9.0"/>
-    <PackageReference Include="Testcontainers.MsSql" Version="3.9.0"/>
-    <PackageReference Include="xunit" Version="2.4.1"/>
+    <PackageReference Include="Bogus" Version="34.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Testcontainers" Version="3.9.0" />
+    <PackageReference Include="Testcontainers.MsSql" Version="3.9.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -19,16 +20,16 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.32"/>
-    <PackageReference Include="FluentAssertions" Version="6.12.0"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.32"/>
-    <PackageReference Include="Respawn" Version="6.2.1"/>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.32"/>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.32" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.32" />
+    <PackageReference Include="Respawn" Version="6.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.32" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Birdboard.API\Birdboard.API.csproj"/>
+    <ProjectReference Include="..\Birdboard.API\Birdboard.API.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="appsettings.Test.json" CopyToOutputDirectory="PreserveNewest"/>
+    <None Update="appsettings.Test.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

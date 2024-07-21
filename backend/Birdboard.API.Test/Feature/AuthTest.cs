@@ -1,6 +1,6 @@
 namespace Birdboard.API.Test.Feature;
 
-public class AuthTest : IntegrationTest
+public class AuthTest : AbstractIntegrationTest
 {
     public AuthTest(IntegrationFixture integrationFixture) : base(integrationFixture)
     {
