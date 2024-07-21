@@ -4,6 +4,7 @@ using Birdboard.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Birdboard.API.Migrations
 {
     [DbContext(typeof(BirdboardDbContext))]
-    partial class BirdboardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240721122730_CreateProjectTasksTable")]
+    partial class CreateProjectTasksTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,15 +151,10 @@ namespace Birdboard.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectTasks");
                 });
@@ -191,15 +188,15 @@ namespace Birdboard.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "d3f26c70-14c8-411f-a479-62ad88bed57c",
-                            ConcurrencyStamp = "d806bf95-ffc8-4d56-bfae-0b2bda8fdca1",
+                            Id = "44b9ef5d-440c-4a43-9049-23abb4caa9f5",
+                            ConcurrencyStamp = "ec2a900b-ca28-47f5-98c5-453ec1b32ab2",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "f81de6d9-1c05-4da0-8a60-91d9baf96ba8",
-                            ConcurrencyStamp = "71924fcb-ff34-4708-aa20-5753366218a5",
+                            Id = "b1368ec4-e9a6-48cf-925b-dcbe75d15e87",
+                            ConcurrencyStamp = "4346d20d-ffd7-4e9d-a37f-82ff7ba291f7",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -322,17 +319,6 @@ namespace Birdboard.API.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("Birdboard.API.Models.ProjectTask", b =>
-                {
-                    b.HasOne("Birdboard.API.Models.Project", "Project")
-                        .WithMany("Tasks")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -387,11 +373,6 @@ namespace Birdboard.API.Migrations
             modelBuilder.Entity("Birdboard.API.Models.AppUser", b =>
                 {
                     b.Navigation("Projects");
-                });
-
-            modelBuilder.Entity("Birdboard.API.Models.Project", b =>
-                {
-                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }
