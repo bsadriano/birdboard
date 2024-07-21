@@ -19,6 +19,8 @@ const ShowProject = (props: Props) => {
           id: 1,
           projectId: 1,
           body: "Task 1",
+          completed: true,
+          path: "/projects/1/tasks/1",
         },
       ],
       owner: {
@@ -46,8 +48,26 @@ const ShowProject = (props: Props) => {
             <div className="mb-8">
               <h2 className="text-grey font-normal text-lg mb-3">Tasks</h2>
               {project?.tasks &&
-                project?.tasks?.map((project) => (
-                  <div className="card mb-3">{project.body}</div>
+                project?.tasks?.map((task) => (
+                  <div className="card mb-3">
+                    <form action="#">
+                      <div className="flex">
+                        <input
+                          type="text"
+                          name="body"
+                          value={task.body}
+                          className={`w-full ${
+                            task.completed ? "text-grey" : ""
+                          }`}
+                        />
+                        <input
+                          type="checkbox"
+                          name="completed"
+                          checked={task.completed}
+                        />
+                      </div>
+                    </form>
+                  </div>
                 ))}
               <div className="card mb-3">
                 <form action="#">

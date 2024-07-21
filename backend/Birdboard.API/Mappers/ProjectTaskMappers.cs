@@ -1,4 +1,4 @@
-using Birdboard.API.Dtos.Project;
+using Birdboard.API.Dtos.ProjectTask;
 using Birdboard.API.Models;
 
 namespace Birdboard.API.Mappers;
@@ -16,6 +16,12 @@ public static class ProjectTaskMappers
         };
 
     public static ProjectTask ToProjectTask(this CreateProjectTaskRequestDto projectTaskDto) =>
+        new ProjectTask
+        {
+            Body = projectTaskDto.Body
+        };
+
+    public static ProjectTask ToProjectTask(this UpdateProjectTaskRequestDto projectTaskDto) =>
         new ProjectTask
         {
             Body = projectTaskDto.Body

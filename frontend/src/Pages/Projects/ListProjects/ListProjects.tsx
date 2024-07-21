@@ -16,6 +16,8 @@ const ListProjects = (props: Props) => {
             id: 1,
             projectId: 1,
             body: "Task 1",
+            completed: false,
+            path: "/projects/1/tasks/1",
           },
         ],
         owner: {

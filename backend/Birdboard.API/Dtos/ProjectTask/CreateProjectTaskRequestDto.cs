@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Birdboard.API.Dtos.Project;
+namespace Birdboard.API.Dtos.ProjectTask;
 
 public class CreateProjectTaskRequestDto
 {

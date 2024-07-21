@@ -9,4 +9,9 @@ public class ProjectTask
     public Project Project { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+
+    public string Path()
+    {
+        return $"/api/projects/{ProjectId}/tasks/{Id}";
+    }
 }
