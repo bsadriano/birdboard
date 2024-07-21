@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Project } from "../../../birdboard";
 import { Link } from "react-router-dom";
-import { stringLimit } from "../../../Helpers/StringLimit";
+import ProjectCard from "../../../Components/Projects/ProjectCard/ProjectCard";
 
 interface Props {}
 
@@ -52,14 +52,7 @@ const ListProjects = (props: Props) => {
         {projects ? (
           projects.map((project) => (
             <div className="lg:w-1/3 px-3 pb-6">
-              <div className="card" style={{ height: "200px" }}>
-                <h3 className="font-normal text-xl py-4 -ml-5 mb-3 border-l-4 border-blue-light pl-4">
-                  <Link to={project.path}>{project.title}</Link>
-                </h3>
-                <div className="text-grey">
-                  {stringLimit(project.description, 100)}
-                </div>
-              </div>
+              <ProjectCard project={project} />
             </div>
           ))
         ) : (
