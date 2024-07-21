@@ -14,6 +14,16 @@ const ShowProject = (props: Props) => {
       title: "title",
       description: "description",
       path: "/projects/1",
+      tasks: [
+        {
+          id: 1,
+          projectId: 1,
+          body: "Task 1",
+        },
+      ],
+      owner: {
+        id: 1,
+      },
     });
   }, []);
 

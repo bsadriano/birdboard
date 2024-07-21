@@ -9,11 +9,58 @@ const ListProjects = (props: Props) => {
   const [projects, setProjects] = useState<Project[]>([]);
   useEffect(() => {
     setProjects([
-      { title: "Title", description: "description", path: "/projects/1" },
-      { title: "Title", description: "description", path: "/projects/2" },
-      { title: "Title", description: "description", path: "/projects/2" },
-      { title: "Title", description: "description", path: "/projects/2" },
       {
+        id: 1,
+        tasks: [
+          {
+            id: 1,
+            projectId: 1,
+            body: "Task 1",
+          },
+        ],
+        owner: {
+          id: 1,
+        },
+        title: "Title",
+        description: "description",
+        path: "/projects/1",
+      },
+      {
+        id: 2,
+        tasks: [],
+        owner: {
+          id: 1,
+        },
+        title: "Title",
+        description: "description",
+        path: "/projects/2",
+      },
+      {
+        id: 3,
+        tasks: [],
+        owner: {
+          id: 1,
+        },
+        title: "Title",
+        description: "description",
+        path: "/projects/3",
+      },
+      {
+        id: 4,
+        tasks: [],
+        owner: {
+          id: 1,
+        },
+        title: "Title",
+        description: "description",
+        path: "/projects/4",
+      },
+      {
+        id: 5,
+        tasks: [],
+        owner: {
+          id: 1,
+        },
         title: "Title",
         description: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo totam, nam blanditiis magni sint eveniet illo, fuga, earum pariatur reiciendis eaque architecto officia sit accusantium iste eligendi iusto repellendus maiores.
   Voluptate, voluptatem. Possimus voluptatibus provident optio dolore sequi, sunt, iure consequuntur in laboriosam minima est dolorem nesciunt laborum accusantium quia placeat! Explicabo ipsum quae ipsam consequuntur voluptatibus praesentium, natus blanditiis?
@@ -32,7 +79,7 @@ const ListProjects = (props: Props) => {
   Illum ullam et animi libero dolorum. Pariatur, placeat. Assumenda nam quis vel repudiandae veritatis eum aspernatur expedita tempora. Optio rerum repudiandae fugiat molestiae veritatis eaque, quibusdam eius delectus maxime qui!
   Excepturi laboriosam aliquam rerum esse at officiis praesentium. Modi aspernatur numquam minima aliquid quaerat dolor dolores perspiciatis eligendi enim impedit eum eius unde animi nam dicta voluptates consequuntur, mollitia optio.
   Magnam, at? Distinctio commodi neque et deleniti hic repudiandae quos error, eum temporibus dignissimos exercitationem iusto pariatur non earum velit id praesentium qui quas illo veniam fuga, sunt esse dolores.`,
-        path: "/  projects/3",
+        path: "/projects/5",
       },
     ]);
   }, []);
