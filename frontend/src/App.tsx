@@ -5,7 +5,7 @@ import Nav from "./Components/Nav/Nav";
 
 function App() {
   return (
-    <div className="app">
+    <div className="bg-grey-light min-h-screen">
       <Nav></Nav>
       <div className="container mx-auto py-4 section">
         <Outlet />
