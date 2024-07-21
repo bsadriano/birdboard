@@ -1,46 +1,37 @@
 using System.Net.Http.Json;
 using Birdboard.API.Mappers;
 using Birdboard.API.Models;
-using Birdboard.API.Test.Factories;
 using Birdboard.API.Test.Helper;
 
 namespace Birdboard.API.Test.Feature;
 
-public class ProjectsTest : IntegrationTest
+public class ManageProjectsTest : IntegrationTest
 {
-    public ProjectsTest(IntegrationFixture integrationFixture) : base(integrationFixture)
+    public ManageProjectsTest(IntegrationFixture integrationFixture) : base(integrationFixture)
     {
     }
 
     [Fact]
-    public async void GuestsCannotCreateAProject()
+    public async void GuestsCannotManageProjects()
     {
         var newProject = _projectFactory.GetProject().ToCreateProjectRequestDto();
-
         var httpContent = Http.BuildContent(newProject);
-        var request = await Client.PostAsync(HttpHelper.Urls.AddProject, httpContent);
-        request.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
-    }
 
-    [Fact]
-    public async void GuestsMayNotViewProjects()
-    {
-        var request = await Client.GetAsync(HttpHelper.Urls.GetProjects);
-        request.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
-    }
+        Client.PostAsync(HttpHelper.Urls.AddProject, httpContent)
+            .Result.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
 
-    [Fact]
-    public async void GuestsCannotViewASingleProject()
-    {
         var user = await _userFactory.Create();
         var project = await _projectFactory
             .WithOwner(user)
             .Create();
 
-        var request = await Client.GetAsync(project.Path());
+        Client.GetAsync(HttpHelper.Urls.GetProjects)
+            .Result.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
 
-        request.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+        Client.GetAsync(project.Path())
+            .Result.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
     }
+
 
     [Fact]
     public async void AUserCanCreateAProject()
