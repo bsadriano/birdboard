@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{html,js,tsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     fontSize: {
       xs: "0.75rem",
@@ -19,10 +22,21 @@ module.exports = {
       },
       colors: {
         'grey-light': '#F5F6F9',
-        'grey': 'rgba(0, 0, 0, 0.4)'
+        'grey': 'rgba(0, 0, 0, 0.4)',
+        'blue': '#47cdff',
+        'blue-light': '#8ae2fe'
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        ".button": {
+          "@apply bg-blue text-white no-underline rounded-lg text-sm py-2 px-5": {},
+          "box-shadow": "0 2px 7px 0 #b0eaff",
+        },
+      })
+    }
+  ],
 }
 
