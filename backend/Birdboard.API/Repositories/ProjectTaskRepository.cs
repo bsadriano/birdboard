@@ -17,6 +17,7 @@ namespace Birdboard.API.Repositories
 
         public async Task<ProjectTask> CreateAsync(ProjectTask model)
         {
+            model.Project.UpdatedAt = DateTime.UtcNow;
             await _context.ProjectTasks.AddAsync(model);
             await _context.SaveChangesAsync();
             return model;
@@ -55,6 +56,7 @@ namespace Birdboard.API.Repositories
                 projectTask.UpdatedAt = (DateTime)projectTaskDto.UpdatedAt;
 
             await _context.SaveChangesAsync();
+
             return projectTask;
         }
     }

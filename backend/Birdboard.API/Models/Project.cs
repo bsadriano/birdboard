@@ -9,10 +9,5 @@ public class Project : BaseEntity
     public string Description { get; set; }
     public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
 
-    public Project()
-    {
-        CreatedAt = DateTime.Now;
-    }
-
     public string Path() => $"/api/projects/{Id}";
 }
