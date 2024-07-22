@@ -24,12 +24,12 @@ export type UpdateTaskData = {
 export const projectTaskPatchAPI = async (
   projectId: string,
   taskId: number,
-  body: UpdateTaskData
+  taskData: UpdateTaskData
 ) => {
   try {
     const data = await axios.patch<ProjectTaskPost>(
       `${api(projectId)}/${taskId}`,
-      body
+      taskData
     );
     return data;
   } catch (error) {
