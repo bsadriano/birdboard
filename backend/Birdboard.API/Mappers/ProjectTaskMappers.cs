@@ -9,8 +9,9 @@ public static class ProjectTaskMappers
         new ProjectTaskDto
         {
             Id = projectTaskModel.Id,
-            Body = projectTaskModel.Body,
             ProjectId = projectTaskModel.ProjectId,
+            Body = projectTaskModel.Body,
+            Completed = projectTaskModel.Completed,
             CreatedAt = projectTaskModel.CreatedAt,
             UpdatedAt = projectTaskModel.UpdatedAt,
         };

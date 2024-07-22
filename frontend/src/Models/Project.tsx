@@ -1,3 +1,5 @@
+import { ProjectTaskGet } from "./ProjectTask";
+
 export type ProjectGet = {
   id: number;
   owner: OwnerGet;
@@ -9,12 +11,4 @@ export type ProjectGet = {
 
 export type OwnerGet = {
   id: number;
-};
-
-export type ProjectTaskGet = {
-  id: number;
-  projectId: number;
-  body: string;
-  completed: boolean;
-  path: string;
 };

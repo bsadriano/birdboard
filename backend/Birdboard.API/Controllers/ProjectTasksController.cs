@@ -113,10 +113,13 @@ public class ProjectTasksController : ControllerBase
     [Route("{taskId:int}")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectTaskDto>))]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> UpdateProjectTask([FromRoute] int projectId, [FromRoute] int taskId, [FromBody] UpdateProjectTaskRequestDto updateProjectTaskDto)
+    public async Task<IActionResult> UpdateProjectTask(
+        [FromRoute] int projectId,
+        [FromRoute] int taskId,
+        [FromBody] UpdateProjectTaskRequestDto updateProjectTaskDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        // if (!ModelState.IsValid)
+        //     return BadRequest(ModelState);
 
         var project = await _projectRepository.GetByIdAsync(projectId);
 

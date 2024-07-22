@@ -47,7 +47,8 @@ namespace Birdboard.API.Repositories
 
             projectTask.Project.UpdatedAt = DateTime.UtcNow;
 
-            projectTask.Body = projectTaskDto.Body;
+            if (projectTaskDto.Body is not null)
+                projectTask.Body = projectTaskDto.Body;
             if (projectTaskDto.Completed is not null)
                 projectTask.Completed = (bool)projectTaskDto.Completed;
             if (projectTaskDto.UpdatedAt is not null)
