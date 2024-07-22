@@ -21,3 +21,17 @@ export const projectGetAPI = async (id: string) => {
     handleError(error);
   }
 };
+
+export type AddProjectData = {
+  title: string;
+  description: string;
+};
+
+export const projectsPostAPI = async (projectData: AddProjectData) => {
+  try {
+    const data = await axios.post<ProjectGet>(`${api}`, projectData);
+    return data;
+  } catch (error) {
+    handleError(error);
+  }
+};
