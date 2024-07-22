@@ -12,14 +12,14 @@ namespace Birdboard.API.Controllers;
 [ApiController]
 [Route("api/projects/{projectId:int}/tasks")]
 [Authorize]
-public class ProjectTasksController : ControllerBase
+public class ProjectTaskController : ControllerBase
 {
     private readonly IProjectTaskRepository _projectTaskRepository;
     private readonly IProjectRepository _projectRepository;
     private readonly IUserService _userService;
     private readonly UserManager<AppUser> _userManager;
 
-    public ProjectTasksController(
+    public ProjectTaskController(
         IProjectTaskRepository projectTaskRepository,
         IProjectRepository projectRepository,
         IUserService userService,
@@ -93,6 +93,8 @@ public class ProjectTasksController : ControllerBase
                 return BadRequest("Logged in user not found");
 
             var projectTaskModel = createProjectTaskDto.ToProjectTask();
+            project.UpdatedAt = DateTime.UtcNow;
+            projectTaskModel.Project = project;
             projectTaskModel.ProjectId = projectId;
 
             await _projectTaskRepository.CreateAsync(projectTaskModel);
@@ -118,8 +120,8 @@ public class ProjectTasksController : ControllerBase
         [FromRoute] int taskId,
         [FromBody] UpdateProjectTaskRequestDto updateProjectTaskDto)
     {
-        // if (!ModelState.IsValid)
-        //     return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
         var project = await _projectRepository.GetByIdAsync(projectId);
 
