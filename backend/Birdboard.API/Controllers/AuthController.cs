@@ -1,4 +1,5 @@
 using Birdboard.API.Dtos.AppUser;
+using Birdboard.API.Mappers;
 using Birdboard.API.Models;
 using Birdboard.API.Services.TokenService;
 using Birdboard.API.Services.UserService;
@@ -10,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Birdboard.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class AuthController : ControllerBase
 {
     private readonly UserManager<AppUser> _userManager;
@@ -59,14 +60,9 @@ public class AuthController : ControllerBase
             if (!roleResult.Succeeded)
                 return StatusCode(500, roleResult.Errors);
 
-            return Ok(
-                new AppUserDto
-                {
-                    UserName = appUser.UserName,
-                    Email = appUser.Email,
-                    Token = _tokenService.CreateToken(appUser),
-                }
-            );
+            var token = _tokenService.CreateToken(appUser);
+
+            return Ok(appUser.ToLoggedInUserDto(token));
         }
         catch (Exception e)
         {
@@ -94,7 +90,7 @@ public class AuthController : ControllerBase
         var refreshToken = _tokenService.GenerateRefreshToken();
         SetRefreshToken(refreshToken);
 
-        return Ok(token);
+        return Ok(user.ToLoggedInUserDto(token));
     }
 
     [HttpPost("refresh-token")]
