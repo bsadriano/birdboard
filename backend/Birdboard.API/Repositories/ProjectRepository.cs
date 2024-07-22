@@ -41,10 +41,12 @@ public class ProjectRepository : IProjectRepository
         if (project == null)
             return null;
 
-        if (model.Title != null)
+        if (model.Title is not null)
             project.Title = model.Title;
-        if (model.Description != null)
+        if (model.Description is not null)
             project.Description = model.Description;
+        if (model.UpdatedAt is not null)
+            project.UpdatedAt = (DateTime)model.UpdatedAt;
 
         await _context.SaveChangesAsync();
         return project;

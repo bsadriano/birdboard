@@ -1,6 +1,6 @@
 namespace Birdboard.API.Models;
 
-public class Project
+public class Project : BaseEntity
 {
     public int Id { get; set; }
     public string OwnerId { get; set; }
@@ -8,8 +8,11 @@ public class Project
     public string Title { get; set; }
     public string Description { get; set; }
     public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+
+    public Project()
+    {
+        CreatedAt = DateTime.Now;
+    }
 
     public string Path() => $"/api/projects/{Id}";
 }

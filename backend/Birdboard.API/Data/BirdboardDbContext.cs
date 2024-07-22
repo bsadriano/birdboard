@@ -16,6 +16,30 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
     public DbSet<Project> Projects { get; set; }
     public DbSet<ProjectTask> ProjectTasks { get; set; }
 
+    public override async Task<int> SaveChangesAsync(
+        CancellationToken cancellationToken = default
+    )
+    {
+        UpdateTimestamp();
+
+        int result = await base.SaveChangesAsync(cancellationToken);
+
+        return result;
+    }
+
+    private void UpdateTimestamp()
+    {
+        var entitesToUpdate = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Modified)
+            .Select(e => e.Entity)
+            .OfType<BaseEntity>();
+
+        foreach (var entity in entitesToUpdate)
+        {
+            entity.UpdatedAt = DateTime.UtcNow;
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

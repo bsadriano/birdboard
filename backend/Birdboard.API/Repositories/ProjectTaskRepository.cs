@@ -45,9 +45,13 @@ namespace Birdboard.API.Repositories
             if (projectTask == null)
                 return null;
 
+            projectTask.Project.UpdatedAt = DateTime.UtcNow;
+
             projectTask.Body = projectTaskDto.Body;
-            if (projectTaskDto.Completed != null)
+            if (projectTaskDto.Completed is not null)
                 projectTask.Completed = (bool)projectTaskDto.Completed;
+            if (projectTaskDto.UpdatedAt is not null)
+                projectTask.UpdatedAt = (DateTime)projectTaskDto.UpdatedAt;
 
             await _context.SaveChangesAsync();
             return projectTask;

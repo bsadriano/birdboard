@@ -9,4 +9,5 @@ public class UpdateProjectTaskRequestDto
     [MaxLength(50, ErrorMessage = "Body cannot be over 50 characters")]
     public string Body { get; set; }
     public bool? Completed { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

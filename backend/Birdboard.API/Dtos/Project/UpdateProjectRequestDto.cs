@@ -10,4 +10,5 @@ public class UpdateProjectRequestDto
     [MinLength(3, ErrorMessage = "Description cannot be less than 3 characters")]
     [MaxLength(50, ErrorMessage = "Description cannot be over 50 characters")]
     public string? Description { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

@@ -128,6 +128,6 @@ public class ProjectTasksController : ControllerBase
         if (projectTask == null)
             return NotFound();
 
-        return NoContent();
+        return Ok(projectTask.ToProjectTaskDto());
     }
 }
