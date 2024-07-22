@@ -4,6 +4,9 @@ import HomePage from "../Pages/HomePage/HomePage";
 import ListProjects from "../Pages/Projects/ListProjects/ListProjects";
 import CreateProject from "../Pages/Projects/CreateProject/CreateProject";
 import ShowProject from "../Pages/Projects/ShowProject/ShowProject";
+import LoginPage from "../Pages/LoginPage/LoginPage";
+import RegisterPage from "../Pages/RegisterPage/RegisterPage";
+import ProtectedRoute from "./ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -12,20 +15,38 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <HomePage />,
+        element: (
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "projects",
-        element: <ListProjects />,
+        element: (
+          <ProtectedRoute>
+            <ListProjects />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "projects/create",
-        element: <CreateProject />,
+        element: (
+          <ProtectedRoute>
+            <CreateProject />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "projects/:id",
-        element: <ShowProject />,
+        element: (
+          <ProtectedRoute>
+            <ShowProject />
+          </ProtectedRoute>
+        ),
       },
+      { path: "login", element: <LoginPage /> },
+      { path: "register", element: <RegisterPage /> },
     ],
   },
 ]);

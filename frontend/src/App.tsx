@@ -1,15 +1,21 @@
 import { Outlet } from "react-router";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import Nav from "./Components/Nav/Nav";
+import { UserProvider } from "./Context/useAuth";
 
 function App() {
   return (
-    <div className="bg-grey-light min-h-screen">
-      <Nav></Nav>
-      <div className="container mx-auto py-4 section">
-        <Outlet />
+    <UserProvider>
+      <div className="bg-grey-light min-h-screen">
+        <Nav></Nav>
+        <div className="container mx-auto py-4 section">
+          <Outlet />
+          <ToastContainer />
+        </div>
       </div>
-    </div>
+    </UserProvider>
   );
 }
 
