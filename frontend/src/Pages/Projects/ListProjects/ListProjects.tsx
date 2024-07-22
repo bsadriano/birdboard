@@ -11,7 +11,7 @@ const ListProjects = (props: Props) => {
   const [projects, setProjects] = useState<ProjectGet[]>([]);
   useEffect(() => {
     getProjects();
-  });
+  }, []);
 
   const getProjects = () => {
     projectsGetAPI()
