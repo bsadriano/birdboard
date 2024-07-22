@@ -1,33 +1,31 @@
 import { useEffect, useState } from "react";
-import { Project } from "../../../birdboard";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import ProjectCard from "../../../Components/Projects/ProjectCard/ProjectCard";
+import { projectGetAPI } from "../../../Services/ProjectService";
+import { toast } from "react-toastify";
+import { ProjectGet } from "../../../Models/Project";
 
 interface Props {}
 
 const ShowProject = (props: Props) => {
-  const [project, setProject] = useState<Project>();
+  const { projectId } = useParams();
+  const [project, setProject] = useState<ProjectGet>();
 
   useEffect(() => {
-    setProject({
-      id: 1,
-      title: "title",
-      description: "description",
-      path: "/projects/1",
-      tasks: [
-        {
-          id: 1,
-          projectId: 1,
-          body: "Task 1",
-          completed: true,
-          path: "/projects/1/tasks/1",
-        },
-      ],
-      owner: {
-        id: 1,
-      },
-    });
-  }, []);
+    getProject(projectId!);
+  }, [projectId]);
+
+  const getProject = (projectId: string) => {
+    projectGetAPI(projectId)
+      .then((res) => {
+        if (res?.data) {
+          setProject(res?.data);
+        }
+      })
+      .catch((error) => {
+        toast.warning("Could get project!");
+      });
+  };
 
   return (
     <>
@@ -86,9 +84,10 @@ const ShowProject = (props: Props) => {
                 General Notes
               </h2>
               {/* General Notes */}
-              <textarea className="card w-full" style={{ minHeight: "200px" }}>
-                Lorem, ipsum.
-              </textarea>
+              <textarea
+                className="card w-full"
+                style={{ minHeight: "200px" }}
+              ></textarea>
             </div>
           </div>
 

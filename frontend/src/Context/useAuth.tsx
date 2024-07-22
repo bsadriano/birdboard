@@ -63,7 +63,7 @@ export const UserProvider = ({ children }: Props) => {
     await loginAPI(username, password)
       .then((res) => {
         if (res) {
-          localStorage.setItem("token", res?.data.token);
+          localStorage.setItem("token", res?.data?.token);
           const userObj = {
             userName: res?.data.userName,
             email: res?.data.email,

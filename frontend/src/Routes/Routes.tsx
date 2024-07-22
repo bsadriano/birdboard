@@ -38,7 +38,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "projects/:id",
+        path: "projects/:projectId",
         element: (
           <ProtectedRoute>
             <ShowProject />

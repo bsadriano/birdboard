@@ -24,13 +24,17 @@ public class ProjectRepository : IProjectRepository
 
     public async Task<List<Project>> GetAllAsync()
     {
-        return await _context.Projects.ToListAsync();
+        return await _context.Projects
+            .Include(p => p.Owner)
+            .Include(p => p.Tasks)
+            .ToListAsync();
     }
 
     public async Task<Project?> GetByIdAsync(int id)
     {
         return await _context.Projects
             .Include(p => p.Owner)
+            .Include(p => p.Tasks)
             .FirstOrDefaultAsync(i => i.Id == id);
     }
 

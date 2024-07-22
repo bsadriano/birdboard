@@ -2,7 +2,7 @@ import axios from "axios";
 import { handleError } from "../Helpers/ErrorHandler";
 import { UserPorfileToken } from "../Models/User";
 
-const auth = process.env.API_BASE_URL + "/auth";
+const auth = `${process.env.REACT_APP_API_URL}/auth`;
 
 export const loginAPI = async (username: string, password: string) => {
   try {
