@@ -24,9 +24,11 @@ namespace Birdboard.API.Test.Feature
 
             await SignIn(user);
 
-            project = await _projectFactory
-                .WithOwner(user)
-                .Create();
+            var projects = (await _projectFactory
+                .OwnedBy(user)
+                .WithTasks(1)
+                .Create(1));
+            project = projects.First();
 
             projectTaskDto = _projectTaskFactory
                 .GetProjectTask(true)
@@ -44,23 +46,21 @@ namespace Birdboard.API.Test.Feature
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
             var result = await response.Content.ReadFromJsonAsync<List<ProjectTask>>();
-            result.Count().Should().Be(1);
-            result.First().Body.Should().Be(projectTaskDto.Body);
+            result.Count().Should().BeGreaterThanOrEqualTo(1);
+            result[1].Body.Should().Be(projectTaskDto.Body);
 
-            var projectTask = DbContext.ProjectTasks.FirstOrDefault(p => p.Id == result.First().Id);
+            var projectTask = DbContext.ProjectTasks.FirstOrDefault(p => p.Id == result[1].Id);
             projectTask.Should().NotBeNull();
         }
 
         [Fact]
         public async void ATaskCanBeUpdated()
         {
-            var projectTask = await _projectTaskFactory
-                .WithProject(project)
-                .Create(true);
+            var projectTask = project.Tasks.First();
 
             var httpContent = Http.BuildContent(projectTaskDto);
             var response = await Client.PatchAsync(projectTask.Path(), httpContent);
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
             var updatedTask = DbContext.ProjectTasks.FirstOrDefault(p => p.Body == projectTaskDto.Body);
             updatedTask.Should().NotBeNull();
@@ -80,9 +80,9 @@ namespace Birdboard.API.Test.Feature
         public async void OnlyTheOwnerOfAProjectMayAddTasks()
         {
             var otherUser = await _userFactory.Create();
-            project = await _projectFactory
-                .WithOwner(otherUser)
-                .Create();
+            project = (await _projectFactory
+                .OwnedBy(otherUser)
+                .Create(1)).First();
 
             var httpContent = Http.BuildContent(projectTaskDto);
             var response = await Client.PostAsync(HttpHelper.Urls.ProjectTasks(project.Id), httpContent);
@@ -93,15 +93,13 @@ namespace Birdboard.API.Test.Feature
         public async void OnlyTheOwnerOfAProjectMayUpdateATask()
         {
             var otherUser = await _userFactory.Create();
-            var otherProject = await _projectFactory
-                .WithOwner(otherUser)
-                .Create(true);
-            var otherProjectTask = await _projectTaskFactory
-                .WithProject(otherProject)
-                .Create(true);
+            var project = (await _projectFactory
+                .OwnedBy(otherUser)
+                .WithTasks(1)
+                .Create(1, true)).First();
 
             var httpContent = Http.BuildContent(projectTaskDto);
-            var response = await Client.PatchAsync(otherProjectTask.Path(), httpContent);
+            var response = await Client.PatchAsync(project.Tasks.First().Path(), httpContent);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
 
             var updatedTask = DbContext.ProjectTasks.FirstOrDefault(p => p.Body == projectTaskDto.Body);

@@ -21,9 +21,9 @@ public class ManageProjectsTest : AbstractIntegrationTest
             .Result.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
 
         var user = await _userFactory.Create();
-        var project = await _projectFactory
-            .WithOwner(user)
-            .Create();
+        var project = (await _projectFactory
+            .OwnedBy(user)
+            .Create(1)).First();
 
         project.Title = "Changed";
         project.Description = "Changed";
@@ -45,7 +45,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
     {
         await SignIn();
 
-        var newProject = _projectFactory.GetProject().ToCreateProjectRequestDto();
+        var newProject = _projectFactory.GetProject(true).ToCreateProjectRequestDto();
 
         var httpContent = Http.BuildContent(newProject);
         var request = await Client.PostAsync(HttpHelper.Urls.Projects, httpContent);
@@ -71,9 +71,9 @@ public class ManageProjectsTest : AbstractIntegrationTest
         var user = await _userFactory.Create(true);
         await SignIn(user);
 
-        var newProject = await _projectFactory
-            .WithOwner(user)
-            .Create();
+        var newProject = (await _projectFactory
+            .OwnedBy(user)
+            .Create(1)).First();
 
         newProject.Notes = "Changed";
 
@@ -91,9 +91,9 @@ public class ManageProjectsTest : AbstractIntegrationTest
         var user = await _userFactory.Create(true);
         await SignIn(user);
 
-        var newProject = await _projectFactory
-            .WithOwner(user)
-            .Create();
+        var newProject = (await _projectFactory
+            .OwnedBy(user)
+            .Create(1)).First();
 
         var response = await Client.GetAsync(newProject.Path());
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
@@ -106,9 +106,9 @@ public class ManageProjectsTest : AbstractIntegrationTest
 
         var user = await _userFactory.Create(true);
 
-        var project = await _projectFactory
-            .WithOwner(user)
-            .Create();
+        var project = (await _projectFactory
+            .OwnedBy(user)
+            .Create(1)).First();
 
         var response = await Client.GetAsync(project.Path());
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
@@ -121,9 +121,9 @@ public class ManageProjectsTest : AbstractIntegrationTest
 
         var user = await _userFactory.Create(true);
 
-        var project = await _projectFactory
-            .WithOwner(user)
-            .Create();
+        var project = (await _projectFactory
+            .OwnedBy(user)
+            .Create(1)).First();
 
         project.Notes = "Changed";
 

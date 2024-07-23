@@ -1,3 +1,4 @@
+using Birdboard.API.Models;
 using Birdboard.API.Test.Factories;
 
 namespace Birdboard.API.Test.Unit;
@@ -5,10 +6,9 @@ namespace Birdboard.API.Test.Unit;
 public class ProjectTest
 {
     [Fact]
-    public void ItHasAPath()
+    public async void ItHasAPath()
     {
-        var project = new ProjectFactory().GetProject();
-
+        Project project = new ProjectFactory().GetProject();
         project.Path().Should().Be("/api/projects/0");
     }
 }

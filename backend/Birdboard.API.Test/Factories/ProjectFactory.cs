@@ -8,35 +8,57 @@ public class ProjectFactory
 {
     public BirdboardDbContext DbContext { get; set; }
     public AppUser? Owner { get; set; }
+    public int TasksCount = 0;
 
     public ProjectFactory(BirdboardDbContext dbContext = null)
     {
         DbContext = dbContext;
     }
 
-    public ProjectFactory WithOwner(AppUser user)
+    public ProjectFactory OwnedBy(AppUser user)
     {
         Owner = user;
         return this;
     }
 
+    public ProjectFactory WithTasks(int count)
+    {
+        TasksCount = count;
+        return this;
+    }
+
     public List<Project> GetProjects(int count, bool useNewSeed = false)
     {
-        return GetProjectFaker(useNewSeed).Generate(count);
+        var faker = GetProjectFaker(useNewSeed);
+        return faker.Generate(count);
     }
 
     public Project GetProject(bool useNewSeed = false)
     {
-        return GetProjects(1, useNewSeed)[0];
+        var projects = GetProjects(1, useNewSeed);
+        return projects[0];
     }
 
-    public async Task<Project> Create(bool useNewSeed = false)
+    public async Task<List<Project>> Create(int count, bool useNewSeed = false)
     {
-        var newProject = GetProject(useNewSeed);
-        await DbContext.Projects.AddAsync(newProject);
+        var newProjects = GetProjects(count, useNewSeed);
+
+        var projectTaskFactory = new ProjectTaskFactory();
+
+        if (TasksCount > 0)
+        {
+            foreach (var project in newProjects)
+            {
+                var tasks = projectTaskFactory.GetProjectTasks(TasksCount, true);
+                project.Tasks = tasks;
+            }
+        }
+
+        await DbContext.Projects.AddRangeAsync(newProjects);
+
         await DbContext.SaveChangesAsync();
 
-        return newProject;
+        return newProjects;
     }
 
     private Faker<Project> GetProjectFaker(bool useNewSeed)

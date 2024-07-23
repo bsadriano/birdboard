@@ -30,13 +30,13 @@ public class ProjectTaskFactory
         return GetProjectTasks(1, useNewSeed)[0];
     }
 
-    public async Task<ProjectTask> Create(bool useNewSeed = false)
+    public async Task<List<ProjectTask>> Create(int count, bool useNewSeed = false)
     {
-        var newProjectTask = GetProjectTask(useNewSeed);
-        await DbContext.ProjectTasks.AddAsync(newProjectTask);
+        var newProjectTasks = GetProjectTasks(count, useNewSeed);
+        await DbContext.ProjectTasks.AddRangeAsync(newProjectTasks);
         await DbContext.SaveChangesAsync();
 
-        return newProjectTask;
+        return newProjectTasks;
     }
 
     private Faker<ProjectTask> GetProjectTaskFaker(bool useNewSeed)
