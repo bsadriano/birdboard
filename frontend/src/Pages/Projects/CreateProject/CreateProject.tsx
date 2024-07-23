@@ -26,7 +26,6 @@ const CreateProject = (props: Props) => {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<AddProjectData>({ resolver: yupResolver(validation) });
 
@@ -45,23 +44,42 @@ const CreateProject = (props: Props) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(handleAddProject)}>
-      <h1>Create a Project</h1>
+    <form
+      className="lg:w-1/2 lg:mx-auto bg-white p-6 md:py-12 md:px-16 rounded shadow"
+      onSubmit={handleSubmit(handleAddProject)}
+    >
+      <h1 className="text-2xl font-normal mb-10 text-center">
+        Create a Project
+      </h1>
 
-      <div>
-        <label htmlFor="title">Title</label>
+      <div className="mb-6">
+        <label className="text-sm mb-2 block" htmlFor="title">
+          Title
+        </label>
         <div>
-          <input type="text" placeholder="Title" {...register("title")} />
+          <input
+            type="text"
+            className="bg-transparent border border-grey-light rounded p-2 text-xs w-full"
+            placeholder="My next awesome project"
+            {...register("title")}
+          />
           {errors.title && (
             <p className="text-red-400 text-sm">{errors.title.message}</p>
           )}
         </div>
       </div>
 
-      <div>
-        <label htmlFor="description">Description</label>
+      <div className="mb-6">
+        <label className="text-sm mb-2 block" htmlFor="description">
+          Description
+        </label>
         <div>
-          <textarea {...register("description")} />
+          <textarea
+            className="bg-transparent border border-grey-light rounded p-2 text-xs w-full"
+            rows={10}
+            placeholder="I should start learning piano"
+            {...register("description")}
+          />
           {errors.description && (
             <p className="text-red-400 text-sm">{errors.description.message}</p>
           )}
@@ -69,7 +87,9 @@ const CreateProject = (props: Props) => {
       </div>
 
       <div>
-        <button type="submit">Create Project</button>
+        <button className="button mr-4" type="submit">
+          Create Project
+        </button>
         <Link to="/projects">Cancel</Link>
       </div>
     </form>
