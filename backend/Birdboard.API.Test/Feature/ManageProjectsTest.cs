@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using Birdboard.API.Dtos.Project;
 using Birdboard.API.Mappers;
 using Birdboard.API.Models;
 using Birdboard.API.Test.Helper;
@@ -20,9 +21,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
         Client.PostAsync(HttpHelper.Urls.Projects, httpContent)
             .Result.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
 
-        var user = await _userFactory.Create();
         var project = (await _projectFactory
-            .OwnedBy(user)
             .Create(1)).First();
 
         project.Title = "Changed";
@@ -68,12 +67,10 @@ public class ManageProjectsTest : AbstractIntegrationTest
     [Fact]
     public async void AUserCanUpdateAProject()
     {
-        var user = await _userFactory.Create(true);
-        await SignIn(user);
-
         var newProject = (await _projectFactory
-            .OwnedBy(user)
             .Create(1)).First();
+
+        await SignIn(newProject.Owner);
 
         newProject.Notes = "Changed";
 
@@ -86,14 +83,31 @@ public class ManageProjectsTest : AbstractIntegrationTest
     }
 
     [Fact]
+    public async void AUserCanUpdateAProjectsGeneralNotes()
+    {
+        var newProject = (await _projectFactory
+            .Create(1)).First();
+
+        await SignIn(newProject.Owner);
+
+        var updatedNotes = new CreateProjectRequestDto();
+        updatedNotes.Notes = "Changed";
+
+        var httpContent = Http.BuildContent(updatedNotes);
+        var response = await Client.PatchAsync(newProject.Path(), httpContent);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+        var project = DbContext.Projects.FirstOrDefault(p => p.Notes == updatedNotes.Notes);
+        project.Should().NotBeNull();
+    }
+
+    [Fact]
     public async void AUserCanViewTheirProject()
     {
-        var user = await _userFactory.Create(true);
-        await SignIn(user);
-
         var newProject = (await _projectFactory
-            .OwnedBy(user)
             .Create(1)).First();
+
+        await SignIn(newProject.Owner);
 
         var response = await Client.GetAsync(newProject.Path());
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
@@ -104,10 +118,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
     {
         await SignIn();
 
-        var user = await _userFactory.Create(true);
-
         var project = (await _projectFactory
-            .OwnedBy(user)
             .Create(1)).First();
 
         var response = await Client.GetAsync(project.Path());
@@ -119,10 +130,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
     {
         await SignIn();
 
-        var user = await _userFactory.Create(true);
-
         var project = (await _projectFactory
-            .OwnedBy(user)
             .Create(1)).First();
 
         project.Notes = "Changed";

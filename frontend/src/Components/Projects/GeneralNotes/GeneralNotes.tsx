@@ -14,24 +14,43 @@ type UpdateNotesFormInput = {
   notes?: string;
 };
 
-const validation = Yup.object().shape({
-  notes: Yup.string()
-    .min(3, "Notes cannot be less than 3 characters")
-    .max(100, "Notes cannot be over 50 characters"),
-});
+const validation = Yup.object().shape(
+  {
+    notes: Yup.string().when("notes", (value) => {
+      if (value[0]) {
+        return Yup.string()
+          .min(3, "Notes cannot be less than 3 characters")
+          .max(100, "Notes cannot be over 50 characters");
+      } else {
+        return Yup.string()
+          .transform((value, originalValue) => {
+            // Convert empty values to null
+            if (!value) {
+              return null;
+            }
+            return originalValue;
+          })
+          .nullable()
+          .optional();
+      }
+    }),
+  },
+  [["notes", "notes"]]
+);
 
 const GeneralNotes = ({ project }: Props) => {
-  console.log("project: ", project);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<UpdateNotesFormInput>({
-    defaultValues: { notes: project?.notes },
+    defaultValues: { notes: project?.notes ?? "" },
+    // defaultValues: { notes: "" },
     resolver: yupResolver(validation),
   });
 
   const handleUpdateNotes = (data: UpdateNotesFormInput) => {
+    console.log(data);
     projectPatchAPI(project!.id, data)
       .then((res) => {
         if (res) {

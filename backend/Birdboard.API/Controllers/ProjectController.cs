@@ -87,7 +87,7 @@ public class ProjectController : ControllerBase
     [Route("{id:int}")]
     [ProducesResponseType(200, Type = typeof(ProjectDto))]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> UpdateProjectTask(
+    public async Task<IActionResult> UpdateProject(
         [FromRoute] int id,
         [FromBody] UpdateProjectRequestDto updateProjectDto)
     {

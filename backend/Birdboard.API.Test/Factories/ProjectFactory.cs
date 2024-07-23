@@ -6,6 +6,8 @@ namespace Birdboard.API.Test.Factories;
 
 public class ProjectFactory
 {
+    Faker<AppUser> _userFaker = new UserFactory().GetUserFaker(true);
+
     public BirdboardDbContext DbContext { get; set; }
     public AppUser? Owner { get; set; }
     public int TasksCount = 0;
@@ -45,6 +47,11 @@ public class ProjectFactory
 
         var projectTaskFactory = new ProjectTaskFactory();
 
+        foreach (var project in newProjects)
+        {
+            project.Owner = Owner ?? _userFaker.Generate(1).First();
+        }
+
         if (TasksCount > 0)
         {
             foreach (var project in newProjects)
@@ -78,7 +85,7 @@ public class ProjectFactory
             .RuleFor(t => t.UpdatedAt, (faker, t) => faker.Date.Past(5, new DateTime(2020, 1, 1)));
 
         if (Owner != null)
-            faker.RuleFor(t => t.Owner, o => Owner);
+            faker.RuleFor(t => t.Owner, o => Owner ?? _userFaker.Generate(1).First());
 
         return faker.UseSeed(seed);
     }

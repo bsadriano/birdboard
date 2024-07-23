@@ -50,10 +50,10 @@ public class ProjectRepository : IProjectRepository
             project.Title = model.Title;
         if (model.Description is not null)
             project.Description = model.Description;
-        if (model.Notes is not null)
-            project.Notes = model.Notes;
         if (model.UpdatedAt is not null)
             project.UpdatedAt = (DateTime)model.UpdatedAt;
+
+        project.Notes = model.Notes;
 
         await _context.SaveChangesAsync();
         return project;

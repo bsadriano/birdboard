@@ -1,5 +1,4 @@
 using Birdboard.API.Data;
-using Birdboard.API.Dtos.AppUser;
 using Birdboard.API.Models;
 using Birdboard.API.Test.Helper;
 using Bogus;
@@ -15,26 +14,25 @@ public class UserFactory
         DbContext = dbContext;
     }
 
-    public List<RegisterUserDto> GetUsers(int count, bool useNewSeed = false)
+    public List<AppUser> GetUsers(int count, bool useNewSeed = false)
     {
         return GetUserFaker(useNewSeed).Generate(count);
     }
 
-    public RegisterUserDto GetUser(bool useNewSeed = false)
+    public AppUser GetUser(bool useNewSeed = false)
     {
         return GetUsers(1, useNewSeed)[0];
     }
 
     public async Task<AppUser> Create(bool useNewSeed = false)
     {
-        var userDto = GetUser(useNewSeed);
-        JwtTokenHelper.CreatePasswordHash(userDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
+        var newUser = GetUser(useNewSeed);
         AppUser user = new AppUser
         {
-            Email = userDto.Email,
-            UserName = userDto.UserName,
-            PasswordHash = Convert.ToBase64String(passwordHash),
-            PasswordSalt = passwordSalt
+            Email = newUser.Email,
+            UserName = newUser.UserName,
+            PasswordHash = newUser.PasswordHash,
+            PasswordSalt = newUser.PasswordSalt,
         };
         await DbContext.Users.AddAsync(user);
         await DbContext.SaveChangesAsync();
@@ -42,7 +40,7 @@ public class UserFactory
         return user;
     }
 
-    private Faker<RegisterUserDto> GetUserFaker(bool useNewSeed)
+    public Faker<AppUser> GetUserFaker(bool useNewSeed)
     {
         var seed = 0;
         if (useNewSeed)
@@ -50,10 +48,12 @@ public class UserFactory
             seed = Random.Shared.Next(10, int.MaxValue);
         }
 
-        var faker = new Faker<RegisterUserDto>()
+        JwtTokenHelper.CreatePasswordHash("123456", out byte[] passwordHash, out byte[] passwordSalt);
+        var faker = new Faker<AppUser>()
             .RuleFor(t => t.UserName, (faker, t) => faker.Internet.UserName())
             .RuleFor(t => t.Email, (faker, t) => faker.Internet.Email())
-            .RuleFor(t => t.Password, (faker, t) => faker.Internet.Password());
+            .RuleFor(t => t.PasswordHash, o => Convert.ToBase64String(passwordHash))
+            .RuleFor(t => t.PasswordSalt, o => passwordSalt);
 
         return faker.UseSeed(seed);
     }
