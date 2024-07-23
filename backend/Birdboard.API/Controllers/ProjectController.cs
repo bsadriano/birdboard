@@ -82,4 +82,28 @@ public class ProjectController : ControllerBase
             projectModel.ToProjectDto()
         );
     }
+
+    [HttpPatch]
+    [Route("{id:int}")]
+    [ProducesResponseType(200, Type = typeof(ProjectDto))]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> UpdateProjectTask(
+        [FromRoute] int id,
+        [FromBody] UpdateProjectRequestDto updateProjectDto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var project = await _projectRepository.GetByIdAsync(id);
+
+        if (project!.OwnerId != _userService.GetAuthId())
+            return StatusCode(403);
+
+        var updatedProject = await _projectRepository.UpdateAsync(id, updateProjectDto);
+
+        if (updatedProject == null)
+            return NotFound();
+
+        return Ok(updatedProject.ToProjectDto());
+    }
 }
