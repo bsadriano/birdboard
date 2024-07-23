@@ -57,12 +57,61 @@ namespace Birdboard.API.Test.Feature
         {
             var projectTask = project.Tasks.First();
 
-            var httpContent = Http.BuildContent(projectTaskDto);
+            var updateProjectTaskDto = new UpdateProjectTaskRequestDto
+            {
+                Body = "Changed"
+            };
+
+            var httpContent = Http.BuildContent(updateProjectTaskDto);
             var response = await Client.PatchAsync(projectTask.Path(), httpContent);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-            var updatedTask = DbContext.ProjectTasks.FirstOrDefault(p => p.Body == projectTaskDto.Body);
+            var updatedTask = DbContext.ProjectTasks.FirstOrDefault(p => p.Body == updateProjectTaskDto.Body);
             updatedTask.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async void ATaskCanBeCompleted()
+        {
+            var projectTask = project.Tasks.First();
+
+            var updateProjectTaskDto = new UpdateProjectTaskRequestDto
+            {
+                Completed = true
+            };
+
+            var httpContent = Http.BuildContent(updateProjectTaskDto);
+            var response = await Client.PatchAsync(projectTask.Path(), httpContent);
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+            var updatedTask = DbContext.ProjectTasks.FirstOrDefault(p => p.Id == projectTask.Id);
+            updatedTask.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async void ATaskCanBeMarkedAsIncomplete()
+        {
+            var projectTask = project.Tasks.First();
+
+            var updateProjectTaskDto = new UpdateProjectTaskRequestDto
+            {
+                Completed = true
+            };
+
+            var httpContent = Http.BuildContent(updateProjectTaskDto);
+            await Client.PatchAsync(projectTask.Path(), httpContent);
+
+            updateProjectTaskDto = new UpdateProjectTaskRequestDto
+            {
+                Completed = false
+            };
+
+            httpContent = Http.BuildContent(updateProjectTaskDto);
+            var response = await Client.PatchAsync(projectTask.Path(), httpContent);
+
+            var updatedTask = DbContext.ProjectTasks.FirstOrDefault(p => p.Id == projectTask.Id);
+            updatedTask.Should().NotBeNull();
+            updatedTask.Completed.Should().Be(false);
         }
 
         [Fact]
