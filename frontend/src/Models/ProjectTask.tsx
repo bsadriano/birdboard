@@ -5,8 +5,3 @@ export type ProjectTaskGet = {
   completed: boolean;
   path: string;
 };
-
-export type ProjectTaskPost = {
-  body: string;
-  completed: boolean;
-};
