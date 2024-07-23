@@ -21,8 +21,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
         Client.PostAsync(HttpHelper.Urls.Projects, httpContent)
             .Result.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
 
-        var project = (await _projectFactory
-            .Create(1)).First();
+        var project = await _projectFactory.Create();
 
         project.Title = "Changed";
         project.Description = "Changed";
@@ -67,8 +66,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
     [Fact]
     public async void AUserCanUpdateAProject()
     {
-        var newProject = (await _projectFactory
-            .Create(1)).First();
+        var newProject = await _projectFactory.Create();
 
         await SignIn(newProject.Owner);
 
@@ -85,8 +83,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
     [Fact]
     public async void AUserCanUpdateAProjectsGeneralNotes()
     {
-        var newProject = (await _projectFactory
-            .Create(1)).First();
+        var newProject = await _projectFactory.Create();
 
         await SignIn(newProject.Owner);
 
@@ -104,8 +101,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
     [Fact]
     public async void AUserCanViewTheirProject()
     {
-        var newProject = (await _projectFactory
-            .Create(1)).First();
+        var newProject = await _projectFactory.Create();
 
         await SignIn(newProject.Owner);
 
@@ -118,8 +114,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
     {
         await SignIn();
 
-        var project = (await _projectFactory
-            .Create(1)).First();
+        var project = await _projectFactory.Create();
 
         var response = await Client.GetAsync(project.Path());
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
@@ -130,8 +125,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
     {
         await SignIn();
 
-        var project = (await _projectFactory
-            .Create(1)).First();
+        var project = await _projectFactory.Create();
 
         project.Notes = "Changed";
 

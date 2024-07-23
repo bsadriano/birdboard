@@ -24,11 +24,10 @@ namespace Birdboard.API.Test.Feature
 
             await SignIn(user);
 
-            var projects = (await _projectFactory
+            project = await _projectFactory
                 .OwnedBy(user)
                 .WithTasks(1)
-                .Create(1));
-            project = projects.First();
+                .Create();
 
             projectTaskDto = _projectTaskFactory
                 .GetProjectTask(true)
@@ -80,9 +79,9 @@ namespace Birdboard.API.Test.Feature
         public async void OnlyTheOwnerOfAProjectMayAddTasks()
         {
             var otherUser = await _userFactory.Create();
-            project = (await _projectFactory
+            project = await _projectFactory
                 .OwnedBy(otherUser)
-                .Create(1)).First();
+                .Create();
 
             var httpContent = Http.BuildContent(projectTaskDto);
             var response = await Client.PostAsync(HttpHelper.Urls.ProjectTasks(project.Id), httpContent);
@@ -93,10 +92,10 @@ namespace Birdboard.API.Test.Feature
         public async void OnlyTheOwnerOfAProjectMayUpdateATask()
         {
             var otherUser = await _userFactory.Create();
-            var project = (await _projectFactory
+            var project = await _projectFactory
                 .OwnedBy(otherUser)
                 .WithTasks(1)
-                .Create(1, true)).First();
+                .Create();
 
             var httpContent = Http.BuildContent(projectTaskDto);
             var response = await Client.PatchAsync(project.Tasks.First().Path(), httpContent);

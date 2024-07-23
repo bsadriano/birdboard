@@ -41,7 +41,12 @@ public class ProjectFactory
         return projects[0];
     }
 
-    public async Task<List<Project>> Create(int count, bool useNewSeed = false)
+    public async Task<Project> Create(bool useNewSeed = false)
+    {
+        return (await CreateMany(1, useNewSeed))[0];
+    }
+
+    public async Task<List<Project>> CreateMany(int count, bool useNewSeed = false)
     {
         var newProjects = GetProjects(count, useNewSeed);
 

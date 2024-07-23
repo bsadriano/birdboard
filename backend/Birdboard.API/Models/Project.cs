@@ -9,6 +9,7 @@ public class Project : BaseEntity
     public string Description { get; set; }
     public string? Notes { get; set; }
     public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
+    public List<Activity> Activities { get; set; } = new List<Activity>();
 
     public string Path() => $"/api/projects/{Id}";
 }

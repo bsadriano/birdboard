@@ -15,12 +15,16 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
     public DbSet<Project> Projects { get; set; }
     public DbSet<ProjectTask> ProjectTasks { get; set; }
+    public DbSet<Activity> Activities { get; set; }
 
     public override async Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default
     )
     {
+        // TODO: Refactor to separate interceptors
         UpdateTimestamp();
+        GenerateAddActivity();
+        GenerateUpdateActivity();
 
         int result = await base.SaveChangesAsync(cancellationToken);
 
@@ -40,6 +44,38 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         }
     }
 
+    private void GenerateAddActivity()
+    {
+        var projectsAdded = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Added)
+            .Select(e => e.Entity)
+            .OfType<Project>();
+
+        foreach (var project in projectsAdded)
+        {
+            project.Activities.Add(new Activity
+            {
+                Description = "created"
+            });
+        }
+    }
+
+    private void GenerateUpdateActivity()
+    {
+        var projectsAdded = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Modified)
+            .Select(e => e.Entity)
+            .OfType<Project>();
+
+        foreach (var project in projectsAdded)
+        {
+            project.Activities.Add(new Activity
+            {
+                Description = "updated"
+            });
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -47,6 +83,11 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         builder.Entity<ProjectTask>()
             .HasOne(o => o.Project)
             .WithMany(p => p.Tasks)
+            .HasForeignKey(p => p.ProjectId);
+
+        builder.Entity<Activity>()
+            .HasOne(o => o.Project)
+            .WithMany(p => p.Activities)
             .HasForeignKey(p => p.ProjectId);
 
         List<IdentityRole> roles = new List<IdentityRole>
