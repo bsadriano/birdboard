@@ -1,3 +1,4 @@
+using Birdboard.API.Dtos.Activity;
 using Birdboard.API.Dtos.ProjectTask;
 
 namespace Birdboard.API.Dtos.Project;
@@ -12,4 +13,5 @@ public class ProjectDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public List<ProjectTaskDto> Tasks { get; set; }
+    public List<ActivityDto> Activities { get; set; }
 }
