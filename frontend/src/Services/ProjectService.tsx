@@ -1,56 +1,28 @@
-import axios from "axios";
-import { handleError } from "../Helpers/ErrorHandler";
-import { ProjectGet, ProjectResponse } from "../Models/Project";
+import { ProjectGet } from "../Models/Project";
+import { getAPI, patchAPI, postAPI } from "./ApiService";
 
 const api = `${process.env.REACT_APP_API_URL}/projects`;
 
-export const projectsGetAPI = async () => {
-  try {
-    const data = await axios.get<ProjectGet[]>(`${api}`);
-    return data;
-  } catch (error) {
-    handleError(error);
-  }
-};
+export const projectsGetAPI = async () => getAPI<ProjectGet[]>(api);
 
-export const projectGetAPI = async (id: string) => {
-  try {
-    const data = await axios.get<ProjectGet>(`${api}/${id}`);
-    return data;
-  } catch (error) {
-    handleError(error);
-  }
-};
+export const projectGetAPI = async (id: string) =>
+  getAPI<ProjectGet>(`${api}/${id}`);
 
-export type AddProjectData = {
+export type ProjectFormInputs = {
   title: string;
   description: string;
 };
 
-export const projectsPostAPI = async (projectData: AddProjectData) => {
-  try {
-    const data = await axios.post<ProjectGet>(`${api}`, projectData);
-    return data;
-  } catch (error) {
-    handleError(error);
-  }
-};
+export const projectsPostAPI = async (projectData: ProjectFormInputs) =>
+  postAPI<ProjectGet>(api, projectData);
 
 export type UpdateProjectData = {
+  title?: string;
+  description?: string;
   notes?: string;
 };
 
 export const projectPatchAPI = async (
-  projectId: number,
+  projectId: number | string,
   projectData: UpdateProjectData
-) => {
-  try {
-    const data = await axios.patch<ProjectResponse>(
-      `${api}/${projectId}`,
-      projectData
-    );
-    return data;
-  } catch (error) {
-    handleError(error);
-  }
-};
+) => patchAPI<ProjectGet>(`${api}/${projectId}`, projectData);
