@@ -70,8 +70,8 @@ const ShowProject = (props: Props) => {
           <p className="text-grey text-sm font-normal">
             <Link to="/projects">My Projects</Link> / {project?.title}
           </p>
-          <Link className="button" to="/projects/create">
-            New Project
+          <Link className="button" to={`/projects/${project?.id}/edit`}>
+            Edit Project
           </Link>
         </div>
       </header>

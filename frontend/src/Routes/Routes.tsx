@@ -7,6 +7,7 @@ import ShowProject from "../Pages/Projects/ShowProject/ShowProject";
 import LoginPage from "../Pages/LoginPage/LoginPage";
 import RegisterPage from "../Pages/RegisterPage/RegisterPage";
 import ProtectedRoute from "./ProtectedRoute";
+import EditProject from "../Pages/Projects/EditProject/EditProject";
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +43,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <ShowProject />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "projects/:projectId/edit",
+        element: (
+          <ProtectedRoute>
+            <EditProject />
           </ProtectedRoute>
         ),
       },
