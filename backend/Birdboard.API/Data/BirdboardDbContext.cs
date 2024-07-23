@@ -65,10 +65,10 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
     private void RecordUpdateActivity()
     {
-        var projectsAdded = ChangeTracker.Entries<Project>()
+        var projectsModified = ChangeTracker.Entries<Project>()
             .Where(e => e.State == EntityState.Modified);
 
-        foreach (EntityEntry<Project> entityEntry in projectsAdded)
+        foreach (EntityEntry<Project> entityEntry in projectsModified)
         {
             var props = entityEntry.CurrentValues.Properties;
             var currentValues = entityEntry.CurrentValues;
@@ -95,7 +95,39 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
                     Description = "updated"
                 });
             }
+        }
 
+        var tasksModified = ChangeTracker.Entries<ProjectTask>()
+            .Where(e => e.State == EntityState.Modified);
+
+        foreach (EntityEntry<ProjectTask> entityEntry in tasksModified)
+        {
+            var props = entityEntry.CurrentValues.Properties;
+            var currentValues = entityEntry.CurrentValues;
+            var originalValues = entityEntry.GetDatabaseValues();
+
+            var differences = new Dictionary<string, Tuple<object, object>>();
+
+            foreach (var property in props)
+            {
+                var currentValue = currentValues[property];
+                var originalValue = originalValues[property];
+
+                if (!Equals(currentValue, originalValue))
+                {
+                    differences.Add(property.Name, new Tuple<object, object>(originalValue, currentValue));
+                }
+            }
+
+            if (!(differences.Count == 1 && differences.ContainsKey("UpdatedAt"))
+                && !(differences.Count == 2 && differences.ContainsKey("Completed")))
+            {
+                this.Activities.Add(new Activity
+                {
+                    ProjectId = entityEntry.Property(a => a.ProjectId).CurrentValue,
+                    Description = "updated"
+                });
+            }
         }
     }
 
