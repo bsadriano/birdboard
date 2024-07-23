@@ -81,7 +81,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
             .Create();
 
         var response = await Client.GetAsync(project.Path());
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
     }
 
     [Fact]
