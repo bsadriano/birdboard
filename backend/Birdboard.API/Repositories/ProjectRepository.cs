@@ -27,6 +27,7 @@ public class ProjectRepository : IProjectRepository
         return await _context.Projects
             .Include(p => p.Owner)
             .Include(p => p.Tasks)
+            .Include(p => p.Activities)
             .OrderByDescending(p => p.UpdatedAt)
             .ToListAsync();
     }
@@ -36,6 +37,7 @@ public class ProjectRepository : IProjectRepository
         return await _context.Projects
             .Include(p => p.Owner)
             .Include(p => p.Tasks)
+            .Include(p => p.Activities)
             .FirstOrDefaultAsync(i => i.Id == id);
     }
 

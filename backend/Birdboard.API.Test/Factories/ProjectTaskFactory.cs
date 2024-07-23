@@ -6,6 +6,7 @@ namespace Birdboard.API.Test.Factories;
 
 public class ProjectTaskFactory
 {
+    public Faker<Project> ProjectFaker = new ProjectFactory().GetProjectFaker(true);
     public BirdboardDbContext DbContext { get; set; }
     public Project? Project { get; set; }
 
@@ -33,6 +34,12 @@ public class ProjectTaskFactory
     public async Task<List<ProjectTask>> Create(int count, bool useNewSeed = false)
     {
         var newProjectTasks = GetProjectTasks(count, useNewSeed);
+
+        foreach (var task in newProjectTasks)
+        {
+            task.Project = Project ?? ProjectFaker.Generate(1).First();
+        }
+
         await DbContext.ProjectTasks.AddRangeAsync(newProjectTasks);
         await DbContext.SaveChangesAsync();
 
@@ -50,7 +57,7 @@ public class ProjectTaskFactory
         var faker = new Faker<ProjectTask>()
             .RuleFor(t => t.Id, o => 0)
             .RuleFor(t => t.Body, (faker, t) => faker.Name.Random.Words())
-            .RuleFor(t => t.Completed, (faker, t) => faker.Random.Int(0, 100) % 2 == 0)
+            .RuleFor(t => t.Completed, (t) => false)
             .RuleFor(t => t.CreatedAt, (faker, t) => faker.Date.Past(5, new DateTime(2020, 1, 1)))
             .RuleFor(t => t.UpdatedAt, (faker, t) => faker.Date.Past(5, new DateTime(2020, 1, 1)));
 

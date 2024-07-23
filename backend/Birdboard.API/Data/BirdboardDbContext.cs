@@ -2,6 +2,7 @@ using Birdboard.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Birdboard.API.Data;
 
@@ -23,8 +24,10 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
     {
         // TODO: Refactor to separate interceptors
         UpdateTimestamp();
-        GenerateAddActivity();
-        GenerateUpdateActivity();
+        RecordAddActivity();
+        RecordUpdateActivity();
+        RecordAddTaskActivity();
+        RecordCompletedTaskActivity();
 
         int result = await base.SaveChangesAsync(cancellationToken);
 
@@ -44,7 +47,7 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         }
     }
 
-    private void GenerateAddActivity()
+    private void RecordAddActivity()
     {
         var projectsAdded = ChangeTracker.Entries()
             .Where(e => e.State == EntityState.Added)
@@ -60,19 +63,74 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         }
     }
 
-    private void GenerateUpdateActivity()
+    private void RecordUpdateActivity()
     {
-        var projectsAdded = ChangeTracker.Entries()
+        var projectsAdded = ChangeTracker.Entries<Project>()
+            .Where(e => e.State == EntityState.Modified);
+
+        foreach (EntityEntry<Project> entityEntry in projectsAdded)
+        {
+            var props = entityEntry.CurrentValues.Properties;
+            var currentValues = entityEntry.CurrentValues;
+            var originalValues = entityEntry.GetDatabaseValues();
+
+            var differences = new Dictionary<string, Tuple<object, object>>();
+
+            foreach (var property in props)
+            {
+                var currentValue = currentValues[property];
+                var originalValue = originalValues[property];
+
+                if (!Equals(currentValue, originalValue))
+                {
+                    differences.Add(property.Name, new Tuple<object, object>(originalValue, currentValue));
+                }
+            }
+
+            if (differences.Count != 1 || !differences.ContainsKey("UpdatedAt"))
+            {
+                this.Activities.Add(new Activity
+                {
+                    ProjectId = entityEntry.Property(a => a.Id).CurrentValue,
+                    Description = "updated"
+                });
+            }
+
+        }
+    }
+
+    private void RecordAddTaskActivity()
+    {
+        var tasksAdded = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Added)
+            .Select(e => e.Entity)
+            .OfType<ProjectTask>();
+
+        foreach (var task in tasksAdded)
+        {
+            task.Project.Activities.Add(new Activity
+            {
+                Description = "created_task"
+            });
+        }
+    }
+
+    private void RecordCompletedTaskActivity()
+    {
+        var tasksModified = ChangeTracker.Entries()
             .Where(e => e.State == EntityState.Modified)
             .Select(e => e.Entity)
-            .OfType<Project>();
+            .OfType<ProjectTask>();
 
-        foreach (var project in projectsAdded)
+        foreach (var task in tasksModified)
         {
-            project.Activities.Add(new Activity
+            if (task.Completed)
             {
-                Description = "updated"
-            });
+                task.Project.Activities.Add(new Activity
+                {
+                    Description = "completed_task"
+                });
+            }
         }
     }
 

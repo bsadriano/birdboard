@@ -25,12 +25,19 @@ public static class ProjectTaskMappers
     public static ProjectTask ToProjectTask(this UpdateProjectTaskRequestDto projectTaskDto) =>
         new ProjectTask
         {
-            Body = projectTaskDto.Body
+            Body = projectTaskDto.Body,
         };
 
     public static CreateProjectTaskRequestDto ToCreateProjectTaskRequestDto(this ProjectTask projectTaskModel) =>
         new CreateProjectTaskRequestDto
         {
             Body = projectTaskModel.Body,
+        };
+
+    public static UpdateProjectTaskRequestDto ToUpdateProjectTaskRequestDto(this ProjectTask projectTaskModel) =>
+        new UpdateProjectTaskRequestDto
+        {
+            Body = projectTaskModel.Body,
+            Completed = projectTaskModel.Completed
         };
 }
