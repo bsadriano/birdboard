@@ -25,6 +25,13 @@ public class ManageProjectsTest : AbstractIntegrationTest
             .WithOwner(user)
             .Create();
 
+        project.Title = "Changed";
+        project.Description = "Changed";
+        project.Notes = "Changed";
+        httpContent = Http.BuildContent(project.ToCreateProjectRequestDto());
+        Client.PatchAsync(project.Path(), httpContent)
+            .Result.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+
         Client.GetAsync(HttpHelper.Urls.Projects)
             .Result.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
 
