@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { projectTaskPostAPI } from "../../../Services/ProjectTaskService";
 import UpdateTaskForm from "../../../Components/Projects/UpdateTaskForm/UpdateTaskForm";
+import GeneralNotes from "../../../Components/Projects/GeneralNotes/GeneralNotes";
 
 interface Props {}
 
@@ -44,7 +45,7 @@ const ShowProject = (props: Props) => {
         }
       })
       .catch((error) => {
-        toast.warning("Could get project!");
+        toast.warning("Could not get project!");
       });
   };
 
@@ -111,11 +112,7 @@ const ShowProject = (props: Props) => {
               <h2 className="text-grey font-normal text-lg mb-3">
                 General Notes
               </h2>
-              {/* General Notes */}
-              <textarea
-                className="card w-full"
-                style={{ minHeight: "200px" }}
-              ></textarea>
+              {project && <GeneralNotes project={project} />}
             </div>
           </div>
 

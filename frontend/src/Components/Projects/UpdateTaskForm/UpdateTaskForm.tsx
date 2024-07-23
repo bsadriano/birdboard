@@ -25,7 +25,6 @@ const UpdateTaskForm = ({ projectId, task, getProject }: Props) => {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<UdpateTaskFormInputs>({
     defaultValues: {

@@ -8,4 +8,5 @@ export type ProjectTaskGet = {
 
 export type ProjectTaskPost = {
   body: string;
+  completed: boolean;
 };

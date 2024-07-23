@@ -1,6 +1,6 @@
 import axios from "axios";
 import { handleError } from "../Helpers/ErrorHandler";
-import { ProjectGet } from "../Models/Project";
+import { ProjectGet, ProjectResponse } from "../Models/Project";
 
 const api = `${process.env.REACT_APP_API_URL}/projects`;
 
@@ -30,6 +30,25 @@ export type AddProjectData = {
 export const projectsPostAPI = async (projectData: AddProjectData) => {
   try {
     const data = await axios.post<ProjectGet>(`${api}`, projectData);
+    return data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export type UpdateProjectData = {
+  notes?: string;
+};
+
+export const projectPatchAPI = async (
+  projectId: number,
+  projectData: UpdateProjectData
+) => {
+  try {
+    const data = await axios.patch<ProjectResponse>(
+      `${api}/${projectId}`,
+      projectData
+    );
     return data;
   } catch (error) {
     handleError(error);
