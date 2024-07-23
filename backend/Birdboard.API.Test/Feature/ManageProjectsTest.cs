@@ -53,6 +53,29 @@ public class ManageProjectsTest : AbstractIntegrationTest
 
         var project = DbContext.Projects.FirstOrDefault(p => p.Id == result.First().Id);
         project.Should().NotBeNull();
+        project.Title.Should().Be(newProject.Title);
+        project.Description.Should().Be(newProject.Description);
+        project.Notes.Should().Be(newProject.Notes);
+    }
+
+    [Fact]
+    public async void AUserCanUpdateAProject()
+    {
+        var user = await _userFactory.Create(true);
+        await SignIn(user);
+
+        var newProject = await _projectFactory
+            .WithOwner(user)
+            .Create();
+
+        newProject.Notes = "Changed";
+
+        var httpContent = Http.BuildContent(newProject.ToCreateProjectRequestDto());
+        var response = await Client.PatchAsync(newProject.Path(), httpContent);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+        var project = DbContext.Projects.FirstOrDefault(p => p.Notes == newProject.Notes);
+        project.Should().NotBeNull();
     }
 
     [Fact]
@@ -81,6 +104,24 @@ public class ManageProjectsTest : AbstractIntegrationTest
             .Create();
 
         var response = await Client.GetAsync(project.Path());
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async void AnAuthenticatedUserCannotUpdateTheProjectsOfOthers()
+    {
+        await SignIn();
+
+        var user = await _userFactory.Create(true);
+
+        var project = await _projectFactory
+            .WithOwner(user)
+            .Create();
+
+        project.Notes = "Changed";
+
+        var httpContent = Http.BuildContent(project.ToCreateProjectRequestDto());
+        var response = await Client.PatchAsync(project.Path(), httpContent);
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
     }
 

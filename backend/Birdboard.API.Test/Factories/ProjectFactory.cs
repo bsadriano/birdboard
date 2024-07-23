@@ -50,6 +50,7 @@ public class ProjectFactory
         var faker = new Faker<Project>()
             .RuleFor(t => t.Id, o => 0)
             .RuleFor(t => t.Title, (faker, t) => faker.Name.Random.Word())
+            .RuleFor(t => t.Notes, (faker, t) => faker.Name.Random.Words())
             .RuleFor(t => t.Description, (faker, t) => faker.Name.Random.Words())
             .RuleFor(t => t.CreatedAt, (faker, t) => faker.Date.Past(5, new DateTime(2020, 1, 1)))
             .RuleFor(t => t.UpdatedAt, (faker, t) => faker.Date.Past(5, new DateTime(2020, 1, 1)));
