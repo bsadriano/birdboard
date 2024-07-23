@@ -24,21 +24,35 @@ public class ProjectRepository : IProjectRepository
 
     public async Task<List<Project>> GetAllAsync()
     {
-        return await _context.Projects
+        var projects = await _context.Projects
             .Include(p => p.Owner)
             .Include(p => p.Tasks)
             .Include(p => p.Activities)
             .OrderByDescending(p => p.UpdatedAt)
             .ToListAsync();
+
+        foreach (var project in projects)
+        {
+            project.Activities = project.Activities.OrderByDescending(a => a.Id).ToList();
+        }
+
+        return projects;
     }
 
     public async Task<Project?> GetByIdAsync(int id)
     {
-        return await _context.Projects
+        var project = await _context.Projects
             .Include(p => p.Owner)
             .Include(p => p.Tasks)
             .Include(p => p.Activities)
             .FirstOrDefaultAsync(i => i.Id == id);
+
+        if (project != null)
+        {
+            project.Activities = project.Activities.OrderByDescending(a => a.Id).ToList();
+        }
+
+        return project;
     }
 
     public async Task<Project?> UpdateAsync(int id, UpdateProjectRequestDto model)

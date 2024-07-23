@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { act, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -10,6 +10,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { projectTaskPostAPI } from "../../../Services/ProjectTaskService";
 import UpdateTaskForm from "../../../Components/Projects/UpdateTaskForm/UpdateTaskForm";
 import GeneralNotes from "../../../Components/Projects/GeneralNotes/GeneralNotes";
+import ActivityCard from "../../../Components/Projects/ActivityCard/ActivityCard";
 
 interface Props {}
 
@@ -41,6 +42,7 @@ const ShowProject = (props: Props) => {
     projectGetAPI(projectId)
       .then((res) => {
         if (res?.data) {
+          console.log(res.data);
           setProject(res?.data);
         }
       })
@@ -117,7 +119,12 @@ const ShowProject = (props: Props) => {
           </div>
 
           <div className="lg:w-1/4 px-3">
-            {project && <ProjectCard project={project} />}
+            {project && (
+              <>
+                <ProjectCard project={project} />
+                <ActivityCard project={project} />
+              </>
+            )}
           </div>
         </div>
       </main>
