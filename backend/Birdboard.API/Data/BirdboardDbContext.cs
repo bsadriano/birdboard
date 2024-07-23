@@ -27,7 +27,6 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         RecordAddActivity();
         RecordUpdateActivity();
         RecordAddTaskActivity();
-        RecordToggleCompletedTaskActivity();
         RecordDeletedTaskActivity();
 
         int result = await base.SaveChangesAsync(cancellationToken);
@@ -120,8 +119,15 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
                 }
             }
 
-            if (!(differences.Count == 1 && differences.ContainsKey("UpdatedAt"))
-                && !(differences.Count == 2 && differences.ContainsKey("Completed")))
+            if (differences.Count == 2 && differences.ContainsKey("Completed"))
+            {
+                this.Activities.Add(new Activity
+                {
+                    ProjectId = entityEntry.Property(a => a.ProjectId).CurrentValue,
+                    Description = entityEntry.Property(a => a.Completed).CurrentValue ? "completed_task" : "incompleted_task"
+                });
+            }
+            else if (!(differences.Count == 1 && differences.ContainsKey("UpdatedAt")))
             {
                 this.Activities.Add(new Activity
                 {
@@ -144,22 +150,6 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
             task.Project.Activities.Add(new Activity
             {
                 Description = "created_task"
-            });
-        }
-    }
-
-    private void RecordToggleCompletedTaskActivity()
-    {
-        var tasksModified = ChangeTracker.Entries()
-            .Where(e => e.State == EntityState.Modified)
-            .Select(e => e.Entity)
-            .OfType<ProjectTask>();
-
-        foreach (var task in tasksModified)
-        {
-            task.Project.Activities.Add(new Activity
-            {
-                Description = task.Completed ? "completed_task" : "incompleted_task"
             });
         }
     }
