@@ -27,7 +27,8 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         RecordAddActivity();
         RecordUpdateActivity();
         RecordAddTaskActivity();
-        RecordCompletedTaskActivity();
+        RecordToggleCompletedTaskActivity();
+        RecordDeletedTaskActivity();
 
         int result = await base.SaveChangesAsync(cancellationToken);
 
@@ -147,7 +148,7 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         }
     }
 
-    private void RecordCompletedTaskActivity()
+    private void RecordToggleCompletedTaskActivity()
     {
         var tasksModified = ChangeTracker.Entries()
             .Where(e => e.State == EntityState.Modified)
@@ -156,13 +157,26 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
         foreach (var task in tasksModified)
         {
-            if (task.Completed)
+            task.Project.Activities.Add(new Activity
             {
-                task.Project.Activities.Add(new Activity
-                {
-                    Description = "completed_task"
-                });
-            }
+                Description = task.Completed ? "completed_task" : "incompleted_task"
+            });
+        }
+    }
+
+    private void RecordDeletedTaskActivity()
+    {
+        var tasksDeleted = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Deleted)
+            .Select(e => e.Entity)
+            .OfType<ProjectTask>();
+
+        foreach (var task in tasksDeleted)
+        {
+            task.Project.Activities.Add(new Activity
+            {
+                Description = "deleted_task"
+            });
         }
     }
 
