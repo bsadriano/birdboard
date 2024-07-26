@@ -36,7 +36,7 @@ public class ProjectRepository : IProjectRepository
 
         var projectIds = projects.Select(p => p.Id).ToList();
         var activities = await _context.Activities
-            .Where(a => a.SubjectType == "Project" && projectIds.Contains(a.SubjectId))
+            .Where(a => (a.SubjectType == "Project" && projectIds.Contains(a.SubjectId)) || projectIds.Contains(a.ProjectId))
             .ToListAsync();
 
         var projectsWithComments = projects.Select(project =>
@@ -57,7 +57,8 @@ public class ProjectRepository : IProjectRepository
             return null;
 
         var activities = await _context.Activities
-            .Where(a => a.SubjectType == "Project" && a.SubjectId == project.Id)
+            .Where(a => (a.SubjectType == "Project" && a.SubjectId == project.Id) || a.ProjectId == project.Id)
+            .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
 
         return projectWithActivites(project, activities);
@@ -66,9 +67,7 @@ public class ProjectRepository : IProjectRepository
     private ProjectDto projectWithActivites(Project project, List<Activity> activities)
     {
         var projectDto = project.ToProjectDto();
-        projectDto.Activities = activities
-            .Where(a => a.SubjectId == project.Id)
-            .Select(a => a.ToActivityDto()).ToList();
+        projectDto.Activities = activities;
 
         return projectDto;
     }

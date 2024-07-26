@@ -1,3 +1,6 @@
+using Birdboard.API.Mappers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Birdboard.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -10,6 +13,13 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 {
     private List<EntityEntry> _addedProjects;
     private List<EntityEntry> _addedTasks;
+    private JsonSerializerSettings settings = new JsonSerializerSettings
+    {
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        PreserveReferencesHandling = PreserveReferencesHandling.All,
+        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+        Formatting = Formatting.Indented // Optional, for better readability
+    };
     public BirdboardDbContext(DbContextOptions dbContextOptions)
     : base(dbContextOptions)
     {
@@ -24,7 +34,6 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         CancellationToken cancellationToken = default
     )
     {
-        var changed = ChangeTracker.Entries();
         _addedProjects = GetEntries<Project>(EntityState.Added);
 
         _addedTasks = GetEntries<ProjectTask>(EntityState.Added);
@@ -65,13 +74,16 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
     private void RecordAddActivity()
     {
+
         foreach (var project in _addedProjects.Select(e => (Project)e.Entity).ToList())
         {
             Activities.Add(new Activity
             {
                 SubjectId = project.Id,
+                ProjectId = project.Id,
                 Description = "created",
                 SubjectType = "Project",
+                EntityData = JsonConvert.SerializeObject(project.ToProjectDto(), settings)
             });
         }
 
@@ -106,9 +118,11 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
             {
                 Activities.Add(new Activity
                 {
+                    ProjectId = entityEntry.Property(a => a.Id).CurrentValue,
                     Description = "updated",
                     SubjectId = entityEntry.Property(a => a.Id).CurrentValue,
-                    SubjectType = "Project"
+                    SubjectType = "Project",
+                    EntityData = JsonConvert.SerializeObject(((Project)entityEntry.Entity).ToProjectDto(), settings)
                 });
             }
         }
@@ -135,22 +149,28 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
                 }
             }
 
+            ProjectTask task = (ProjectTask)entityEntry.Entity;
             if (differences.Count == 2 && differences.ContainsKey("Completed"))
             {
                 Activities.Add(new Activity
                 {
+                    ProjectId = entityEntry.Property(a => a.ProjectId).CurrentValue,
                     Description = entityEntry.Property(a => a.Completed).CurrentValue ? "completed_task" : "incompleted_task",
                     SubjectId = entityEntry.Property(a => a.Id).CurrentValue,
-                    SubjectType = "ProjectTask"
+                    SubjectType = "ProjectTask",
+                    EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
                 });
             }
             else if (!(differences.Count == 1 && differences.ContainsKey("UpdatedAt")))
             {
                 Activities.Add(new Activity
                 {
+
+                    ProjectId = entityEntry.Property(a => a.ProjectId).CurrentValue,
                     Description = "updated",
                     SubjectId = entityEntry.Property(a => a.Id).CurrentValue,
-                    SubjectType = "ProjectTask"
+                    SubjectType = "ProjectTask",
+                    EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
                 });
             }
         }
@@ -165,9 +185,11 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         {
             Activities.Add(new Activity
             {
+                ProjectId = task.ProjectId,
                 Description = "created_task",
                 SubjectId = task.Id,
-                SubjectType = "ProjectTask"
+                SubjectType = "ProjectTask",
+                EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
             });
         }
 
@@ -185,9 +207,11 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         {
             Activities.Add(new Activity
             {
+                ProjectId = task.ProjectId,
                 Description = "deleted_task",
                 SubjectId = task.Id,
-                SubjectType = "ProjectTask"
+                SubjectType = "ProjectTask",
+                EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
             });
         }
     }

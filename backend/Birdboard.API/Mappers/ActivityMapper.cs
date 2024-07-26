@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Birdboard.API.Dtos.Activity;
 using Birdboard.API.Models;
 
@@ -10,8 +11,10 @@ public static class ActivityMapper
         {
             Id = activityModel.Id,
             Description = activityModel.Description,
+            ProjectId = activityModel.ProjectId,
             SubjectId = activityModel.SubjectId,
             SubjectType = activityModel.SubjectType,
+            EntityData = JsonConvert.DeserializeObject(activityModel.EntityData),
             CreatedAt = activityModel.CreatedAt,
         };
 }
