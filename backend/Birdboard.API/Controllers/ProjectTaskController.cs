@@ -94,7 +94,6 @@ public class ProjectTaskController : ControllerBase
 
             var projectTaskModel = createProjectTaskDto.ToProjectTask();
             project.UpdatedAt = DateTime.UtcNow;
-            projectTaskModel.Project = project;
             projectTaskModel.ProjectId = projectId;
 
             await _projectTaskRepository.CreateAsync(projectTaskModel);

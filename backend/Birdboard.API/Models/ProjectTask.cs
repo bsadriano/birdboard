@@ -1,6 +1,6 @@
 namespace Birdboard.API.Models;
 
-public class ProjectTask : BaseEntity
+public class ProjectTask : BaseEntity, IRecordable
 {
     public int Id { get; set; }
     public string Body { get; set; }

@@ -17,7 +17,6 @@ public class ProjectTaskRepository : IProjectTaskRepository
 
     public async Task<ProjectTask> CreateAsync(ProjectTask model)
     {
-        model.Project.UpdatedAt = DateTime.UtcNow;
         await _context.ProjectTasks.AddAsync(model);
         await _context.SaveChangesAsync();
         return model;

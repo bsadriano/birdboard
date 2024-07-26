@@ -17,11 +17,9 @@ public class TriggerActivityTest : AbstractIntegrationTest
     {
         var project = await _projectFactory.Create(true);
 
-        project.Activities.Count.Should().Be(1);
-        project.Activities.First().Description.Should().Be("created");
+        DbContext.Activities.Count().Should().Be(1);
+        DbContext.Activities.First().Description.Should().Be("created");
     }
-
-
 
     [Fact]
     public async void UpdatingAProject()
@@ -32,12 +30,13 @@ public class TriggerActivityTest : AbstractIntegrationTest
 
         await DbContext.SaveChangesAsync();
 
-        project.Activities.Count.Should().Be(2);
-        project.Activities.Last().Description.Should().Be("updated");
+        DbContext.Activities.Count().Should().Be(2);
+        var last = await DbContext.Activities.OrderBy(a => a.Id).LastAsync();
+        last.Description.Should().Be("updated");
     }
 
     [Fact]
-    public async void CreatingANewTaskRecordsProjectActivity()
+    public async void CreatingANewTask()
     {
         var project = await _projectFactory.Create(true);
 
@@ -47,8 +46,10 @@ public class TriggerActivityTest : AbstractIntegrationTest
 
         await DbContext.SaveChangesAsync();
 
-        project.Activities.Count.Should().Be(2);
-        project.Activities.Last().Description.Should().Be("created_task");
+        DbContext.Activities.Count().Should().Be(2);
+        var last = await DbContext.Activities.OrderBy(a => a.Id).LastAsync();
+        last.Description.Should().Be("created_task");
+        last.SubjectType.Should().Be("ProjectTask");
     }
 
     [Fact]
@@ -72,12 +73,9 @@ public class TriggerActivityTest : AbstractIntegrationTest
 
         DbContext.Entry(project).State = EntityState.Detached;
 
-        var updatedProject = await DbContext.Projects
-            .Include(p => p.Activities)
-            .FirstOrDefaultAsync(i => i.Id == project.Id);
-
-        updatedProject.Activities.Count.Should().Be(3);
-        updatedProject.Activities.Last().Description.Should().Be("completed_task");
+        DbContext.Activities.Count().Should().Be(3);
+        var last = await DbContext.Activities.OrderBy(a => a.Id).LastAsync();
+        last.Description.Should().Be("completed_task");
     }
 
     [Fact]
@@ -101,12 +99,10 @@ public class TriggerActivityTest : AbstractIntegrationTest
 
         DbContext.Entry(project).State = EntityState.Detached;
 
-        var updatedProject = await DbContext.Projects
-            .Include(p => p.Activities)
-            .FirstOrDefaultAsync(i => i.Id == project.Id);
+        DbContext.Activities.Count().Should().Be(3);
 
-        updatedProject.Activities.Count.Should().Be(3);
-        updatedProject.Activities.Last().Description.Should().Be("completed_task");
+        var last = await DbContext.Activities.OrderBy(a => a.Id).LastAsync();
+        last.Description.Should().Be("completed_task");
 
         // Incompleting task
 
@@ -121,14 +117,9 @@ public class TriggerActivityTest : AbstractIntegrationTest
         );
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-        DbContext.Entry(updatedProject).State = EntityState.Detached;
-
-        updatedProject = await DbContext.Projects
-            .Include(p => p.Activities)
-            .FirstOrDefaultAsync(i => i.Id == project.Id);
-
-        updatedProject.Activities.Count.Should().Be(4);
-        updatedProject.Activities.Last().Description.Should().Be("incompleted_task");
+        DbContext.Activities.Count().Should().Be(4);
+        last = await DbContext.Activities.OrderBy(a => a.Id).LastAsync();
+        last.Description.Should().Be("incompleted_task");
     }
 
     [Fact]
@@ -140,7 +131,9 @@ public class TriggerActivityTest : AbstractIntegrationTest
 
         await DbContext.SaveChangesAsync();
 
-        project.Activities.Count.Should().Be(3);
-        project.Activities.Last().Description.Should().Be("deleted_task");
+        DbContext.Activities.Count().Should().Be(3);
+
+        var last = await DbContext.Activities.OrderBy(a => a.Id).LastAsync();
+        last.Description.Should().Be("deleted_task");
     }
 }

@@ -30,6 +30,7 @@ namespace Birdboard.API.Test.Feature
                 .Create();
 
             projectTaskDto = _projectTaskFactory
+                .WithProject(project)
                 .GetProjectTask(true)
                 .ToCreateProjectTaskRequestDto();
         }

@@ -32,10 +32,7 @@ public class ProjectController : ControllerBase
     {
         var projects = await _projectRepository.GetAllAsync();
 
-        return Ok(
-            projects.Select(p => p.ToProjectDto())
-                    .ToList()
-        );
+        return Ok(projects);
     }
 
     [HttpGet]
@@ -54,7 +51,7 @@ public class ProjectController : ControllerBase
 
         return project == null
             ? NotFound()
-            : Ok(project.ToProjectDto());
+            : Ok(project);
     }
 
     [HttpPost]
@@ -74,12 +71,12 @@ public class ProjectController : ControllerBase
 
         var projectModel = createProjectDto.ToProject();
         projectModel.OwnerId = appUser.Id;
-        await _projectRepository.CreateAsync(projectModel);
+        var projectDto = await _projectRepository.CreateAsync(projectModel);
 
         return CreatedAtAction(
             nameof(GetById),
             new { id = projectModel.Id },
-            projectModel.ToProjectDto()
+            projectDto
         );
     }
 
@@ -104,6 +101,6 @@ public class ProjectController : ControllerBase
         if (updatedProject == null)
             return NotFound();
 
-        return Ok(updatedProject.ToProjectDto());
+        return Ok(updatedProject);
     }
 }

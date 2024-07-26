@@ -10,7 +10,8 @@ public static class ActivityMapper
         {
             Id = activityModel.Id,
             Description = activityModel.Description,
-            ProjectId = activityModel.ProjectId,
+            SubjectId = activityModel.SubjectId,
+            SubjectType = activityModel.SubjectType,
             CreatedAt = activityModel.CreatedAt,
         };
 }

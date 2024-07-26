@@ -1,5 +1,7 @@
 using Birdboard.API.Data;
+using Birdboard.API.Dtos.Activity;
 using Birdboard.API.Dtos.Project;
+using Birdboard.API.Mappers;
 using Birdboard.API.Models;
 using Birdboard.API.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -15,49 +17,68 @@ public class ProjectRepository : IProjectRepository
         _context = context;
     }
 
-    public async Task<Project> CreateAsync(Project model)
+    public async Task<ProjectDto> CreateAsync(Project model)
     {
         await _context.Projects.AddAsync(model);
         await _context.SaveChangesAsync();
-        return model;
+
+
+        return await GetByIdAsync(model.Id);
     }
 
-    public async Task<List<Project>> GetAllAsync()
+    public async Task<List<ProjectDto>> GetAllAsync()
     {
         var projects = await _context.Projects
             .Include(p => p.Owner)
             .Include(p => p.Tasks)
-            .Include(p => p.Activities)
             .OrderByDescending(p => p.UpdatedAt)
             .ToListAsync();
 
-        foreach (var project in projects)
-        {
-            project.Activities = project.Activities.OrderByDescending(a => a.Id).ToList();
-        }
+        var projectIds = projects.Select(p => p.Id).ToList();
+        var activities = await _context.Activities
+            .Where(a => a.SubjectType == "Project" && projectIds.Contains(a.SubjectId))
+            .ToListAsync();
 
-        return projects;
+        var projectsWithComments = projects.Select(project =>
+            projectWithActivites(project, activities)
+        ).ToList();
+
+        return projectsWithComments;
     }
 
-    public async Task<Project?> GetByIdAsync(int id)
+    public async Task<ProjectDto?> GetByIdAsync(int id)
     {
         var project = await _context.Projects
             .Include(p => p.Owner)
             .Include(p => p.Tasks)
-            .Include(p => p.Activities)
             .FirstOrDefaultAsync(i => i.Id == id);
 
-        if (project != null)
-        {
-            project.Activities = project.Activities.OrderByDescending(a => a.Id).ToList();
-        }
+        if (project is null)
+            return null;
 
-        return project;
+        var activities = await _context.Activities
+            .Where(a => a.SubjectType == "Project" && a.SubjectId == project.Id)
+            .ToListAsync();
+
+        return projectWithActivites(project, activities);
     }
 
-    public async Task<Project?> UpdateAsync(int id, UpdateProjectRequestDto model)
+    private ProjectDto projectWithActivites(Project project, List<Activity> activities)
     {
-        var project = await GetByIdAsync(id);
+        var projectDto = project.ToProjectDto();
+        projectDto.Activities = activities
+            .Where(a => a.SubjectId == project.Id)
+            .Select(a => a.ToActivityDto()).ToList();
+
+        return projectDto;
+    }
+
+    public async Task<ProjectDto?> UpdateAsync(int id, UpdateProjectRequestDto model)
+    {
+        var project = await _context.Projects
+            .Include(p => p.Owner)
+            .Include(p => p.Tasks)
+            .FirstOrDefaultAsync(i => i.Id == id);
 
         if (project == null)
             return null;
@@ -72,6 +93,7 @@ public class ProjectRepository : IProjectRepository
         project.Notes = model.Notes;
 
         await _context.SaveChangesAsync();
-        return project;
+
+        return project.ToProjectDto();
     }
 }

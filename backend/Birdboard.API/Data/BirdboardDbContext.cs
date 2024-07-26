@@ -8,6 +8,8 @@ namespace Birdboard.API.Data;
 
 public class BirdboardDbContext : IdentityDbContext<AppUser>
 {
+    private List<EntityEntry> _addedProjects;
+    private List<EntityEntry> _addedTasks;
     public BirdboardDbContext(DbContextOptions dbContextOptions)
     : base(dbContextOptions)
     {
@@ -22,16 +24,30 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         CancellationToken cancellationToken = default
     )
     {
+        var changed = ChangeTracker.Entries();
+        _addedProjects = GetEntries<Project>(EntityState.Added);
+
+        _addedTasks = GetEntries<ProjectTask>(EntityState.Added);
+
         // TODO: Refactor to separate interceptors
         UpdateTimestamp();
-        RecordAddActivity();
         RecordUpdateActivity();
-        RecordAddTaskActivity();
         RecordDeletedTaskActivity();
 
         int result = await base.SaveChangesAsync(cancellationToken);
+        RecordAddActivity();
+        RecordAddTaskActivity();
+
+        _addedProjects.Clear();
 
         return result;
+    }
+
+    private List<EntityEntry> GetEntries<T>(EntityState state)
+    {
+        return ChangeTracker.Entries()
+            .Where(e => e.State == state && e.Entity is T)
+            .ToList();
     }
 
     private void UpdateTimestamp()
@@ -49,18 +65,17 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
     private void RecordAddActivity()
     {
-        var projectsAdded = ChangeTracker.Entries()
-            .Where(e => e.State == EntityState.Added)
-            .Select(e => e.Entity)
-            .OfType<Project>();
-
-        foreach (var project in projectsAdded)
+        foreach (var project in _addedProjects.Select(e => (Project)e.Entity).ToList())
         {
-            project.Activities.Add(new Activity
+            Activities.Add(new Activity
             {
-                Description = "created"
+                SubjectId = project.Id,
+                Description = "created",
+                SubjectType = "Project",
             });
         }
+
+        base.SaveChanges();
     }
 
     private void RecordUpdateActivity()
@@ -89,10 +104,11 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
             if (differences.Count != 1 || !differences.ContainsKey("UpdatedAt"))
             {
-                this.Activities.Add(new Activity
+                Activities.Add(new Activity
                 {
-                    ProjectId = entityEntry.Property(a => a.Id).CurrentValue,
-                    Description = "updated"
+                    Description = "updated",
+                    SubjectId = entityEntry.Property(a => a.Id).CurrentValue,
+                    SubjectType = "Project"
                 });
             }
         }
@@ -121,18 +137,20 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
             if (differences.Count == 2 && differences.ContainsKey("Completed"))
             {
-                this.Activities.Add(new Activity
+                Activities.Add(new Activity
                 {
-                    ProjectId = entityEntry.Property(a => a.ProjectId).CurrentValue,
-                    Description = entityEntry.Property(a => a.Completed).CurrentValue ? "completed_task" : "incompleted_task"
+                    Description = entityEntry.Property(a => a.Completed).CurrentValue ? "completed_task" : "incompleted_task",
+                    SubjectId = entityEntry.Property(a => a.Id).CurrentValue,
+                    SubjectType = "ProjectTask"
                 });
             }
             else if (!(differences.Count == 1 && differences.ContainsKey("UpdatedAt")))
             {
-                this.Activities.Add(new Activity
+                Activities.Add(new Activity
                 {
-                    ProjectId = entityEntry.Property(a => a.ProjectId).CurrentValue,
-                    Description = "updated"
+                    Description = "updated",
+                    SubjectId = entityEntry.Property(a => a.Id).CurrentValue,
+                    SubjectType = "ProjectTask"
                 });
             }
         }
@@ -140,18 +158,20 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
     private void RecordAddTaskActivity()
     {
-        var tasksAdded = ChangeTracker.Entries()
-            .Where(e => e.State == EntityState.Added)
-            .Select(e => e.Entity)
-            .OfType<ProjectTask>();
+        var tasksAdded = _addedTasks
+            .Select(e => (ProjectTask)e.Entity);
 
         foreach (var task in tasksAdded)
         {
-            task.Project.Activities.Add(new Activity
+            Activities.Add(new Activity
             {
-                Description = "created_task"
+                Description = "created_task",
+                SubjectId = task.Id,
+                SubjectType = "ProjectTask"
             });
         }
+
+        base.SaveChanges();
     }
 
     private void RecordDeletedTaskActivity()
@@ -163,9 +183,11 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
         foreach (var task in tasksDeleted)
         {
-            task.Project.Activities.Add(new Activity
+            Activities.Add(new Activity
             {
-                Description = "deleted_task"
+                Description = "deleted_task",
+                SubjectId = task.Id,
+                SubjectType = "ProjectTask"
             });
         }
     }
@@ -177,11 +199,6 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         builder.Entity<ProjectTask>()
             .HasOne(o => o.Project)
             .WithMany(p => p.Tasks)
-            .HasForeignKey(p => p.ProjectId);
-
-        builder.Entity<Activity>()
-            .HasOne(o => o.Project)
-            .WithMany(p => p.Activities)
             .HasForeignKey(p => p.ProjectId);
 
         List<IdentityRole> roles = new List<IdentityRole>
@@ -198,5 +215,20 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
                 },
             };
         builder.Entity<IdentityRole>().HasData(roles);
+
+        // builder.Entity<Project>()
+        //     .HasDiscriminator<string>("Discriminator")
+        //     .HasValue<Project>("Project");
+
+        // builder.Entity<Activity>()
+        //     .HasKey(c => c.Id);
+
+        // builder.Entity<Activity>()
+        //     .Property(c => c.SubjectType)
+        //     .IsRequired();
+
+        // builder.Entity<Activity>()
+        //     .Property(c => c.SubjectId)
+        //     .IsRequired();
     }
 }

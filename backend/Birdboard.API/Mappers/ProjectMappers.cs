@@ -12,11 +12,11 @@ public static class ProjectMappers
             Title = projectModel.Title,
             Description = projectModel.Description,
             Notes = projectModel.Notes,
+            OwnerId = projectModel.OwnerId,
             Path = projectModel.Path(),
             CreatedAt = projectModel.CreatedAt,
             UpdatedAt = projectModel.UpdatedAt,
-            Tasks = projectModel.Tasks.Select(t => t.ToProjectTaskDto()).ToList(),
-            Activities = projectModel.Activities.Select(t => t.ToActivityDto()).ToList()
+            Tasks = projectModel.Tasks.Select(t => t.ToProjectTaskDto()).ToList()
         };
 
     public static Project ToProject(this CreateProjectRequestDto projectDto) =>
