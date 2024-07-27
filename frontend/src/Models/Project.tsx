@@ -12,38 +12,47 @@ export type ProjectGet = {
 };
 
 export type OwnerGet = {
-  id: number;
+  id: string;
+  userName: string;
+  email: string;
 };
 
-export type ProjectActivity = {
+// Base type for common properties
+type BaseActivity<T extends string> = {
   id: number;
-  description: "created" | "updated";
+  description: T;
   createdAt: string;
+  entityData: {
+    id: number;
+    title?: string; // Optional for tasks
+    description?: string; // Optional for tasks
+    body?: string; // Optional for projects
+  };
+  subjectId: number;
+  subjectType: string; // To be narrowed in derived types
+  changes: any;
+  user: OwnerGet;
+};
+
+// Project Activity Type
+export type ProjectActivity = BaseActivity<"created" | "updated"> & {
   entityData: {
     id: number;
     title: string;
     description: string;
   };
-  subjectId: number;
   subjectType: "Project";
-  changes: any;
 };
 
-export type TaskActivity = {
-  id: number;
-  description:
-    | "created_task"
-    | "updated_task"
-    | "completed_task"
-    | "incompleted_task";
-  createdAt: string;
+// Task Activity Type
+export type TaskActivity = BaseActivity<
+  "created_task" | "updated_task" | "completed_task" | "incompleted_task"
+> & {
   entityData: {
     id: number;
     body: string;
   };
-  subjectId: number;
   subjectType: "ProjectTask";
-  changes: any;
 };
 
 export type ProjectResponse = {

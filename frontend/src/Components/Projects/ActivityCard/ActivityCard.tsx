@@ -11,31 +11,37 @@ interface Props {
 }
 
 // Mapping of descriptions to messages
-const descriptionMessages: Record<string, (entityData?: string) => string> = {
-  created: () => "You created the project",
-  updated: () => "You updated the project",
-  created_task: (body) => `You created ${body}`,
-  completed_task: (body) => `You completed ${body}`,
-  incompleted_task: (body) => `You incompleted ${body}`,
+const descriptionMessages: Record<
+  string,
+  (userName: string, body?: string) => string
+> = {
+  created: (userName) => `${userName} created the project`,
+  updated: (userName) => `${userName} created the project`,
+  created_task: (userName, body) => `${userName} created ${body}`,
+  completed_task: (userName, body) => `${userName} completed ${body}`,
+  incompleted_task: (userName, body) => `${userName} incompleted ${body}`,
 };
 
 // Function to get message based on activity
 const getActivityMessage = (
   activity: ProjectActivity | TaskActivity
 ): string => {
-  const { subjectType, description, changes, entityData } = activity;
+  const { subjectType, description, changes, entityData, user } = activity;
   if (subjectType === "Project") {
     if (description === "updated") {
       const changedKeys = Object.keys(changes.after);
       return changedKeys.length === 1
-        ? `You updated the ${changedKeys[0]} of the project`
-        : "You updated the project";
+        ? `${user.userName} updated the ${changedKeys[0]} of the project`
+        : `${user.userName} updated the project`;
     }
-    return descriptionMessages[description]?.() || "";
+
+    return descriptionMessages[description]?.(user.userName) || "";
   }
 
   if (subjectType === "ProjectTask") {
-    return descriptionMessages[description](entityData.body) || "";
+    return (
+      descriptionMessages[description](user.userName, entityData.body) || ""
+    );
   }
 
   return ""; // Fallback if no match found

@@ -12,4 +12,11 @@ public static class AuthMappers
             Email = user.Email,
             Token = token
         };
+
+    public static AppUserDto ToAppUserDto(this AppUser user) =>
+        new AppUserDto
+        {
+            UserName = user.UserName,
+            Email = user.Email
+        };
 }

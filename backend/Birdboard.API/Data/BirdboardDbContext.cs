@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
+using Birdboard.API.Services.UserService;
 
 namespace Birdboard.API.Data;
 
@@ -20,10 +21,12 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         ContractResolver = new CamelCasePropertyNamesContractResolver(),
         Formatting = Formatting.Indented // Optional, for better readability
     };
-    public BirdboardDbContext(DbContextOptions dbContextOptions)
+    private readonly IUserService _userService;
+
+    public BirdboardDbContext(DbContextOptions dbContextOptions, IUserService userService)
     : base(dbContextOptions)
     {
-
+        _userService = userService;
     }
 
     public DbSet<Project> Projects { get; set; }
@@ -173,6 +176,32 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         }
     }
 
+    private void RecordActivity(Project project, string description, Dictionary<string, Tuple<object, object>>? differences = null)
+    {
+        Activities.Add(new Activity
+        {
+            SubjectId = project.Id,
+            ProjectId = project.Id,
+            Description = description,
+            SubjectType = "Project",
+            EntityData = JsonConvert.SerializeObject(project.ToProjectDto(), settings),
+            Changes = ActivityChanges(description, differences),
+            UserId = ActivityOwnerId(project)
+        });
+    }
+
+    private void RecordActivity(ProjectTask task, string description)
+    {
+        Activities.Add(new Activity
+        {
+            ProjectId = task.ProjectId,
+            Description = description,
+            SubjectId = task.Id,
+            SubjectType = "ProjectTask",
+            EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
+        });
+    }
+
     private string? ActivityChanges(string description, Dictionary<string, Tuple<object, object>>? differences)
     {
         if (description != "updated" || differences == null || differences.Count == 0)
@@ -195,30 +224,15 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         return JsonConvert.SerializeObject(changes, settings);
     }
 
-
-    private void RecordActivity(Project project, string description, Dictionary<string, Tuple<object, object>>? differences = null)
+    private string ActivityOwnerId(object entity)
     {
-        Activities.Add(new Activity
-        {
-            SubjectId = project.Id,
-            ProjectId = project.Id,
-            Description = description,
-            SubjectType = "Project",
-            EntityData = JsonConvert.SerializeObject(project.ToProjectDto(), settings),
-            Changes = ActivityChanges(description, differences)
-        });
-    }
+        if (entity is Project)
+            return ((Project)entity).OwnerId;
 
-    private void RecordActivity(ProjectTask task, string description)
-    {
-        Activities.Add(new Activity
-        {
-            ProjectId = task.ProjectId,
-            Description = description,
-            SubjectId = task.Id,
-            SubjectType = "ProjectTask",
-            EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
-        });
+        if (entity is ProjectTask)
+            return ((ProjectTask)entity).Project.OwnerId;
+
+        return "";
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -229,6 +243,17 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
             .HasOne(o => o.Project)
             .WithMany(p => p.Tasks)
             .HasForeignKey(p => p.ProjectId);
+
+        builder.Entity<Activity>()
+            .HasOne(a => a.Project)
+            .WithMany(p => p.Activities)
+            .HasForeignKey(p => p.ProjectId);
+
+        builder.Entity<Activity>()
+            .HasOne(a => a.User)
+            .WithMany(u => u.Activities)
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         List<IdentityRole> roles = new List<IdentityRole>
             {

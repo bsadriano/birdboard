@@ -1,3 +1,5 @@
+using Birdboard.API.Dtos.AppUser;
+
 namespace Birdboard.API.Dtos.Activity;
 
 public class ActivityDto
@@ -9,5 +11,6 @@ public class ActivityDto
     public string SubjectType { get; set; }
     public object EntityData { get; set; }
     public object Changes { get; set; }
+    public AppUserDto User { get; set; }
     public DateTime CreatedAt { get; set; }
 }

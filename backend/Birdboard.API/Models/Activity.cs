@@ -11,4 +11,6 @@ public class Activity : BaseEntity
     public string SubjectType { get; set; }
     public string EntityData { get; set; }
     public string? Changes { get; set; }
+    public string UserId { get; set; }
+    public AppUser User { get; set; }
 }
