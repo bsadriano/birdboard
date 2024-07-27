@@ -10,25 +10,29 @@ interface Props {
   project: ProjectGet;
 }
 
-type ActivityMap = {
-  created: string;
-  updated: string;
-  created_task: (task: string) => string;
-  completed_task: (task: string) => string;
-  incompleted_task: (task: string) => string;
+// Mapping of descriptions to messages
+const descriptionMessages: Record<string, (entityData?: string) => string> = {
+  created: () => "You created the project",
+  updated: () => "You updated the project",
+  created_task: (body) => `You created ${body}`,
+  updated_task: (body) => `You updated ${body}`,
+  completed_task: (body) => `You completed ${body}`,
+  incompleted_task: (body) => `You incompleted ${body}`,
 };
 
-export type ActivityMapKey = keyof ActivityMap;
+// Function to get message based on activity
+const getActivityMessage = (
+  activity: ProjectActivity | TaskActivity
+): string => {
+  if (activity.subjectType === "Project") {
+    return descriptionMessages[activity.description]();
+  } else if (activity.subjectType === "ProjectTask") {
+    return descriptionMessages[activity.description](activity.entityData.body);
+  }
+  return ""; // Fallback if no match found
+};
 
 const ActivityCard = ({ project }: Props) => {
-  const activityMap: ActivityMap = {
-    created: "You created the project",
-    updated: "You updated the project",
-    created_task: (task) => `You created ${task}`,
-    completed_task: (task) => `You completed ${task}`,
-    incompleted_task: (task) => `You incompleted ${task}`,
-  };
-
   return (
     <div className="card mt-3">
       <ul className="text-xs">
@@ -39,10 +43,7 @@ const ActivityCard = ({ project }: Props) => {
               if (activity.subjectType === "Project") {
                 return (
                   <li key={activity.id} className="mb-1">
-                    {activity.description === "created" &&
-                      "You created the project"}
-                    {activity.description === "updated" &&
-                      "You updated the project"}
+                    {getActivityMessage(activity)}
                     &nbsp;
                     <span className="text-grey">
                       {moment.utc(activity.createdAt).local().fromNow()}
@@ -52,14 +53,7 @@ const ActivityCard = ({ project }: Props) => {
               } else if (activity.subjectType === "ProjectTask") {
                 return (
                   <li key={activity.id} className="mb-1">
-                    {activity.description === "updated" &&
-                      `You updated ${activity.entityData.body}`}
-                    {activity.description === "created_task" &&
-                      `You created ${activity.entityData.body}`}
-                    {activity.description === "completed_task" &&
-                      `You completed ${activity.entityData.body}`}
-                    {activity.description === "incompleted_task" &&
-                      `You incompleted ${activity.entityData.body}`}
+                    {getActivityMessage(activity)}
                     &nbsp;
                     <span className="text-grey">
                       {moment.utc(activity.createdAt).local().fromNow()}
