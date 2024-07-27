@@ -84,7 +84,9 @@ public class ProjectTaskController : ControllerBase
 
             var project = await _projectRepository.GetByIdAsync(projectId);
 
-            if (project!.OwnerId != _userService.GetAuthId())
+            var isMember = await _projectRepository.IsMember(projectId, _userService.GetAuthId());
+
+            if (project!.OwnerId != _userService.GetAuthId() && !isMember)
                 return StatusCode(403);
 
             var appUser = await _userManager.FindByIdAsync(_userService.GetAuthId());
@@ -124,7 +126,9 @@ public class ProjectTaskController : ControllerBase
 
         var project = await _projectRepository.GetByIdAsync(projectId);
 
-        if (project!.OwnerId != _userService.GetAuthId())
+        var isMember = await _projectRepository.IsMember(projectId, _userService.GetAuthId());
+
+        if (project!.OwnerId != _userService.GetAuthId() && !isMember)
             return StatusCode(403);
 
         var projectTask = await _projectTaskRepository.UpdateAsync(taskId, updateProjectTaskDto);

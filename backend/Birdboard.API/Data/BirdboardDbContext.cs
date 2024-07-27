@@ -31,6 +31,7 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
     public DbSet<Project> Projects { get; set; }
     public DbSet<ProjectTask> ProjectTasks { get; set; }
+    public DbSet<ProjectMember> ProjectMembers { get; set; }
     public DbSet<Activity> Activities { get; set; }
 
     public override async Task<int> SaveChangesAsync(
@@ -258,5 +259,19 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
                 },
             };
         builder.Entity<IdentityRole>().HasData(roles);
+
+        builder.Entity<ProjectMember>(x => x.HasKey(p => new { p.UserId, p.ProjectId }));
+
+        builder.Entity<ProjectMember>()
+            .HasOne(u => u.User)
+            .WithMany(u => u.Members)
+            .HasForeignKey(pm => pm.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ProjectMember>()
+            .HasOne(u => u.Project)
+            .WithMany(p => p.Members)
+            .HasForeignKey(pm => pm.ProjectId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

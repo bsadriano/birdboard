@@ -10,6 +10,7 @@ public class Project : BaseEntity, IRecordable
     public string? Notes { get; set; }
     public List<Activity> Activities { get; set; } = new List<Activity>();
     public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
+    public List<ProjectMember> Members { get; set; } = new List<ProjectMember>();
 
     public string Path() => $"/api/projects/{Id}";
 }

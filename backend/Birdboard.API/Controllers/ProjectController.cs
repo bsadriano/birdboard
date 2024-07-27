@@ -30,7 +30,7 @@ public class ProjectController : ControllerBase
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetAll()
     {
-        var projects = await _projectRepository.GetAllAsync();
+        var projects = await _projectRepository.GetAllAsync(_userService.GetAuthId());
 
         return Ok(projects);
     }
@@ -46,7 +46,9 @@ public class ProjectController : ControllerBase
 
         var project = await _projectRepository.GetByIdAsync(id);
 
-        if (project.OwnerId != _userService.GetAuthId())
+        var isMember = await _projectRepository.IsMember(id, _userService.GetAuthId());
+
+        if (project!.OwnerId != _userService.GetAuthId() && !isMember)
             return StatusCode(403);
 
         return project == null
@@ -93,7 +95,9 @@ public class ProjectController : ControllerBase
 
         var project = await _projectRepository.GetByIdAsync(id);
 
-        if (project!.OwnerId != _userService.GetAuthId())
+        var isMember = await _projectRepository.IsMember(id, _userService.GetAuthId());
+
+        if (project!.OwnerId != _userService.GetAuthId() && !isMember)
             return StatusCode(403);
 
         var updatedProject = await _projectRepository.UpdateAsync(id, updateProjectDto);
@@ -115,7 +119,9 @@ public class ProjectController : ControllerBase
 
         var project = await _projectRepository.GetByIdAsync(id);
 
-        if (project!.OwnerId != _userService.GetAuthId())
+        var isMember = await _projectRepository.IsMember(id, _userService.GetAuthId());
+
+        if (project!.OwnerId != _userService.GetAuthId() || !isMember)
             return StatusCode(403);
 
         var result = await _projectRepository.DeleteAsync(id);

@@ -9,6 +9,7 @@ public class ProjectFactory
     Faker<AppUser> UserFaker = new UserFactory().GetUserFaker(true);
     public BirdboardDbContext DbContext { get; set; }
     public AppUser? Owner { get; set; }
+    public List<AppUser>? Invitees { get; set; }
     public int TasksCount = 0;
 
     public ProjectFactory(BirdboardDbContext dbContext = null)
@@ -25,6 +26,24 @@ public class ProjectFactory
     public ProjectFactory WithTasks(int count)
     {
         TasksCount = count;
+        return this;
+    }
+
+    public ProjectFactory WithInvitees(object obj)
+    {
+        switch (obj)
+        {
+            case AppUser user:
+                Invitees = new List<AppUser>
+                {
+                    user
+                };
+                break;
+            case List<AppUser> users:
+                Invitees = users;
+                break;
+        }
+
         return this;
     }
 
@@ -66,6 +85,25 @@ public class ProjectFactory
         }
 
         await DbContext.Projects.AddRangeAsync(newProjects);
+
+        await DbContext.SaveChangesAsync();
+
+        if (Invitees is not null && Invitees.Count > 0)
+        {
+            foreach (var project in newProjects)
+            {
+                List<ProjectMember> members = new();
+                foreach (var invitee in Invitees)
+                {
+                    members.Add(new ProjectMember
+                    {
+                        UserId = invitee.Id,
+                        ProjectId = project.Id
+                    });
+                }
+                await DbContext.ProjectMembers.AddRangeAsync(members);
+            }
+        }
 
         await DbContext.SaveChangesAsync();
 

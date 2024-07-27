@@ -25,12 +25,13 @@ public class ProjectRepository : IProjectRepository
         return await GetByIdAsync(model.Id);
     }
 
-    public async Task<List<ProjectDto>> GetAllAsync()
+    public async Task<List<ProjectDto>> GetAllAsync(string userId)
     {
         var projects = await _context.Projects
             .Include(p => p.Owner)
             .Include(p => p.Tasks)
             .OrderByDescending(p => p.UpdatedAt)
+            .Where(p => p.OwnerId == userId)
             .ToListAsync();
 
         var projectIds = projects.Select(p => p.Id).ToList();
@@ -111,5 +112,14 @@ public class ProjectRepository : IProjectRepository
         await _context.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<bool> IsMember(int projectId, string userId)
+    {
+        var result = await _context.ProjectMembers
+            .Where(pm => pm.UserId == userId && pm.ProjectId == projectId)
+            .CountAsync();
+
+        return result > 0;
     }
 }
