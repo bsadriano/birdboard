@@ -30,7 +30,7 @@ public class ProjectController : ControllerBase
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetAll()
     {
-        var projects = await _projectRepository.GetAllAsync(_userService.GetAuthId());
+        var projects = await _projectRepository.GetAccessibleProjectsAsync(_userService.GetAuthId());
 
         return Ok(projects);
     }

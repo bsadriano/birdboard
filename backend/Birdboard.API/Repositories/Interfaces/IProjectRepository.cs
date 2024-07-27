@@ -11,5 +11,5 @@ public interface IProjectRepository
     Task<ProjectDto?> UpdateAsync(int id, UpdateProjectRequestDto model);
     Task<bool> DeleteAsync(int id);
     Task<bool> IsMember(int projectId, string userId);
-
+    Task<List<ProjectDto>> GetAccessibleProjectsAsync(string userId);
 }

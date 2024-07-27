@@ -46,6 +46,50 @@ public class ProjectRepository : IProjectRepository
         return projectsWithComments;
     }
 
+    public async Task<List<ProjectDto>> GetAccessibleProjectsAsync(string userId)
+    {
+        // Retrieve project IDs from both project members and owned projects
+        var projectIds = await _context.ProjectMembers
+            .Where(pm => pm.UserId == userId)
+            .Select(pm => pm.ProjectId)
+            .Union(_context.Projects
+                .Where(p => p.OwnerId == userId)
+                .Select(p => p.Id))
+            .ToListAsync();
+
+        // Retrieve activities related to the projects
+        var activities = await _context.Activities
+            .Include(a => a.User)
+            .Where(a => (a.SubjectType == "Project" && projectIds.Contains(a.SubjectId)) || projectIds.Contains(a.ProjectId))
+            .ToListAsync();
+
+        // Retrieve projects with their activities
+        var memberProjects = await _context.ProjectMembers
+            .Where(pm => pm.UserId == userId)
+            .Include(pm => pm.Project)
+                .ThenInclude(p => p.Owner)
+            .Include(pm => pm.Project)
+                .ThenInclude(p => p.Tasks)
+            .Select(pm => pm.Project)
+            .ToListAsync();
+
+        var ownedProjects = await _context.Projects
+            .Where(p => p.OwnerId == userId)
+            .Include(p => p.Owner)
+            .Include(p => p.Tasks)
+            .ToListAsync();
+
+        var combinedProjects = memberProjects
+            .Concat(ownedProjects)
+            .DistinctBy(p => p.Id) // Assuming `Id` is the unique identifier
+            .OrderByDescending(p => p.UpdatedAt)
+            .ToList();
+
+        return combinedProjects.Select(project =>
+            projectWithActivites(project, activities)
+        ).ToList();
+    }
+
     public async Task<ProjectDto?> GetByIdAsync(int id)
     {
         var project = await _context.Projects

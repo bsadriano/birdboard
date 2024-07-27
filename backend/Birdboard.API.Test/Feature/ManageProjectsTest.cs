@@ -64,6 +64,24 @@ public class ManageProjectsTest : AbstractIntegrationTest
     }
 
     [Fact]
+    public async void AUserCanSeeAlProjectsTheyHaveBeenInvitedToOnTheirDashboard()
+    {
+        var user = await _userFactory.Create();
+        var project = await _projectFactory
+            .WithInvitees(user)
+            .Create();
+
+        await SignIn(user);
+
+        var response = await Client.GetAsync(HttpHelper.Urls.Projects);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<List<ProjectDto>>();
+        result.Count().Should().Be(1);
+        result.First().Title.Should().Be(project.Title);
+    }
+
+    [Fact]
     public async void UnauthorizedUsersCannotDeleteProjects()
     {
         var newProject = await _projectFactory.Create();

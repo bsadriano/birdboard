@@ -40,9 +40,11 @@ const ProjectCard = ({ project, onDelete = () => {} }: Props) => {
 
       <footer>
         <form onSubmit={handleDelete}>
-          <button type="submit" className="text-xs">
-            Delete
-          </button>
+          <div className="text-right">
+            <button type="submit" className="text-xs">
+              Delete
+            </button>
+          </div>
         </form>
       </footer>
     </div>
