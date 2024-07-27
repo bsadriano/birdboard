@@ -77,7 +77,6 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
     private void RecordAddActivity()
     {
-
         foreach (var project in _addedProjects.Select(e => (Project)e.Entity).ToList())
         {
             RecordActivity(project, "created");
@@ -110,9 +109,9 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
                 }
             }
 
-            if (differences.Count != 1 || !differences.ContainsKey("UpdatedAt"))
+            if (differences.Count > 0)
             {
-                RecordActivity((Project)entityEntry.Entity, "updated", differences);
+                RecordActivity(entityEntry.Entity, "updated", differences);
             }
         }
 
@@ -138,14 +137,13 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
                 }
             }
 
-            ProjectTask task = (ProjectTask)entityEntry.Entity;
-            if (differences.Count == 2 && differences.ContainsKey("Completed"))
+            if (differences.Count == 1 && differences.ContainsKey("Completed"))
             {
-                RecordActivity(task, task.Completed ? "completed_task" : "incompleted_task");
+                RecordActivity(entityEntry.Entity, entityEntry.Entity.Completed ? "completed_task" : "incompleted_task");
             }
-            else if (!(differences.Count == 1 && differences.ContainsKey("UpdatedAt")))
+            else if (differences.Count > 0)
             {
-                RecordActivity(task, "updated_task");
+                RecordActivity(entityEntry.Entity, "updated_task");
             }
         }
     }
@@ -186,7 +184,7 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
             SubjectType = "Project",
             EntityData = JsonConvert.SerializeObject(project.ToProjectDto(), settings),
             Changes = ActivityChanges(description, differences),
-            UserId = ActivityOwnerId(project)
+            UserId = project.OwnerId
         });
     }
 
@@ -198,7 +196,8 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
             Description = description,
             SubjectId = task.Id,
             SubjectType = "ProjectTask",
-            EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
+            EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings),
+            UserId = task.Project.OwnerId
         });
     }
 
@@ -224,16 +223,6 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
         return JsonConvert.SerializeObject(changes, settings);
     }
 
-    private string ActivityOwnerId(object entity)
-    {
-        if (entity is Project)
-            return ((Project)entity).OwnerId;
-
-        if (entity is ProjectTask)
-            return ((ProjectTask)entity).Project.OwnerId;
-
-        return "";
-    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
