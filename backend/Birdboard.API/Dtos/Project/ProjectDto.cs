@@ -1,4 +1,5 @@
 using Birdboard.API.Dtos.Activity;
+using Birdboard.API.Dtos.AppUser;
 using Birdboard.API.Dtos.ProjectTask;
 
 namespace Birdboard.API.Dtos.Project;
@@ -13,6 +14,8 @@ public class ProjectDto
     public string Path { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public AppUserDto Owner { get; set; }
     public List<ProjectTaskDto> Tasks { get; set; }
     public List<ActivityDto> Activities { get; set; }
+    public List<AppUserDto>? Members { get; set; }
 }

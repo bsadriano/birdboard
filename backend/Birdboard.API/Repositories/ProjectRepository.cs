@@ -40,7 +40,7 @@ public class ProjectRepository : IProjectRepository
             .ToListAsync();
 
         var projectsWithComments = projects.Select(project =>
-            projectWithActivites(project, activities)
+            projectWithActivitiesMembers(project, activities)
         ).ToList();
 
         return projectsWithComments;
@@ -70,6 +70,9 @@ public class ProjectRepository : IProjectRepository
                 .ThenInclude(p => p.Owner)
             .Include(pm => pm.Project)
                 .ThenInclude(p => p.Tasks)
+            .Include(pm => pm.Project)
+                .ThenInclude(p => p.Members)
+                    .ThenInclude(pm => pm.User)
             .Select(pm => pm.Project)
             .ToListAsync();
 
@@ -77,6 +80,8 @@ public class ProjectRepository : IProjectRepository
             .Where(p => p.OwnerId == userId)
             .Include(p => p.Owner)
             .Include(p => p.Tasks)
+            .Include(p => p.Members)
+                .ThenInclude(m => m.User)
             .ToListAsync();
 
         var combinedProjects = memberProjects
@@ -86,7 +91,7 @@ public class ProjectRepository : IProjectRepository
             .ToList();
 
         return combinedProjects.Select(project =>
-            projectWithActivites(project, activities)
+            projectWithActivitiesMembers(project, activities)
         ).ToList();
     }
 
@@ -95,6 +100,8 @@ public class ProjectRepository : IProjectRepository
         var project = await _context.Projects
             .Include(p => p.Owner)
             .Include(p => p.Tasks)
+            .Include(p => p.Members)
+                .ThenInclude(p => p.User)
             .FirstOrDefaultAsync(i => i.Id == id);
 
         if (project is null)
@@ -105,14 +112,24 @@ public class ProjectRepository : IProjectRepository
             .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
 
-        return projectWithActivites(project, activities);
+        return projectWithActivitiesMembers(project, activities);
     }
 
-    private ProjectDto projectWithActivites(Project project, List<Activity> activities)
+    private ProjectDto projectWithActivitiesMembers(Project project, List<Activity> activities)
     {
         var projectDto = project.ToProjectDto();
         projectDto.Activities = activities
             .Select(a => a.ToActivityDto()).ToList();
+        projectDto.Members = project.Members
+            .Select(m => m.User.ToAppUserDto()).ToList();
+
+        return projectDto;
+    }
+
+    private ProjectDto projectWithMembers(ProjectDto projectDto, List<AppUser> members)
+    {
+        projectDto.Members = members
+            .Select(u => u.ToAppUserDto()).ToList();
 
         return projectDto;
     }

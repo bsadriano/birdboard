@@ -9,6 +9,7 @@ export type ProjectGet = {
   notes: string;
   description: string;
   path: string;
+  members: ProjectMemberGet[];
 };
 
 export type OwnerGet = {
@@ -53,6 +54,12 @@ export type TaskActivity = BaseActivity<
     body: string;
   };
   subjectType: "ProjectTask";
+};
+
+export type ProjectMemberGet = {
+  email: string;
+  token: string;
+  userName: string;
 };
 
 export type ProjectResponse = {

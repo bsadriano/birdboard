@@ -16,7 +16,9 @@ public static class ProjectMappers
             Path = projectModel.Path(),
             CreatedAt = projectModel.CreatedAt,
             UpdatedAt = projectModel.UpdatedAt,
-            Tasks = projectModel.Tasks.Select(t => t.ToProjectTaskDto()).ToList()
+            Owner = projectModel.Owner.ToAppUserDto(),
+            Tasks = projectModel.Tasks.Select(t => t.ToProjectTaskDto()).ToList(),
+            Members = projectModel.Members.Select(t => t.User.ToAppUserDto()).ToList()
         };
 
     public static Project ToProject(this CreateProjectRequestDto projectDto) =>

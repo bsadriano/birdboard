@@ -11,6 +11,7 @@ import { projectTaskPostAPI } from "../../../Services/ProjectTaskService";
 import UpdateTaskForm from "../../../Components/Projects/UpdateTaskForm/UpdateTaskForm";
 import GeneralNotes from "../../../Components/Projects/GeneralNotes/GeneralNotes";
 import ActivityCard from "../../../Components/Projects/ActivityCard/ActivityCard";
+import { gravatar_url } from "../../../Helpers/Gravatar_Url";
 
 interface Props {}
 
@@ -76,9 +77,27 @@ const ShowProject = (props: Props) => {
           <p className="text-grey text-sm font-normal">
             <Link to="/projects">My Projects</Link> / {project?.title}
           </p>
-          <Link className="button" to={`/projects/${project?.id}/edit`}>
-            Edit Project
-          </Link>
+
+          <div className="flex items-center">
+            {project?.members &&
+              project?.members.map((member) => {
+                return (
+                  <img
+                    src={gravatar_url(member.email)}
+                    alt={`${member.userName}'s avatar`}
+                    className="rounded-full w-8 mr-2"
+                  />
+                );
+              })}
+            <img
+              src={gravatar_url(project?.owner.email!)}
+              alt={`${project?.owner.userName}'s avatar`}
+              className="rounded-full w-8 mr-2"
+            />
+            <Link className="button ml-6" to={`/projects/${project?.id}/edit`}>
+              Edit Project
+            </Link>
+          </div>
         </div>
       </header>
 
