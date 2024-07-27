@@ -15,6 +15,7 @@ public static class ActivityMapper
             SubjectId = activityModel.SubjectId,
             SubjectType = activityModel.SubjectType,
             EntityData = JsonConvert.DeserializeObject(activityModel.EntityData),
+            Changes = JsonConvert.DeserializeObject(activityModel.Changes ?? ""),
             CreatedAt = activityModel.CreatedAt,
         };
 }

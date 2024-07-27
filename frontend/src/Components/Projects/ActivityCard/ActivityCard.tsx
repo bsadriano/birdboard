@@ -15,7 +15,6 @@ const descriptionMessages: Record<string, (entityData?: string) => string> = {
   created: () => "You created the project",
   updated: () => "You updated the project",
   created_task: (body) => `You created ${body}`,
-  updated_task: (body) => `You updated ${body}`,
   completed_task: (body) => `You completed ${body}`,
   incompleted_task: (body) => `You incompleted ${body}`,
 };
@@ -24,11 +23,21 @@ const descriptionMessages: Record<string, (entityData?: string) => string> = {
 const getActivityMessage = (
   activity: ProjectActivity | TaskActivity
 ): string => {
-  if (activity.subjectType === "Project") {
-    return descriptionMessages[activity.description]();
-  } else if (activity.subjectType === "ProjectTask") {
-    return descriptionMessages[activity.description](activity.entityData.body);
+  const { subjectType, description, changes, entityData } = activity;
+  if (subjectType === "Project") {
+    if (description === "updated") {
+      const changedKeys = Object.keys(changes.after);
+      return changedKeys.length === 1
+        ? `You updated the ${changedKeys[0]} of the project`
+        : "You updated the project";
+    }
+    return descriptionMessages[description]?.() || "";
   }
+
+  if (subjectType === "ProjectTask") {
+    return descriptionMessages[description](entityData.body) || "";
+  }
+
   return ""; // Fallback if no match found
 };
 

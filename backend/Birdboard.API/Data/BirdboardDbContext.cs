@@ -1,11 +1,11 @@
 using Birdboard.API.Mappers;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Birdboard.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Newtonsoft.Json;
 
 namespace Birdboard.API.Data;
 
@@ -16,7 +16,7 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
     private JsonSerializerSettings settings = new JsonSerializerSettings
     {
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-        PreserveReferencesHandling = PreserveReferencesHandling.All,
+        PreserveReferencesHandling = PreserveReferencesHandling.None,
         ContractResolver = new CamelCasePropertyNamesContractResolver(),
         Formatting = Formatting.Indented // Optional, for better readability
     };
@@ -77,14 +77,7 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
         foreach (var project in _addedProjects.Select(e => (Project)e.Entity).ToList())
         {
-            Activities.Add(new Activity
-            {
-                SubjectId = project.Id,
-                ProjectId = project.Id,
-                Description = "created",
-                SubjectType = "Project",
-                EntityData = JsonConvert.SerializeObject(project.ToProjectDto(), settings)
-            });
+            RecordActivity(project, "created");
         }
 
         base.SaveChanges();
@@ -108,7 +101,7 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
                 var currentValue = currentValues[property];
                 var originalValue = originalValues[property];
 
-                if (!Equals(currentValue, originalValue))
+                if (!Equals(currentValue, originalValue) && property.Name != "UpdatedAt")
                 {
                     differences.Add(property.Name, new Tuple<object, object>(originalValue, currentValue));
                 }
@@ -116,14 +109,7 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
             if (differences.Count != 1 || !differences.ContainsKey("UpdatedAt"))
             {
-                Activities.Add(new Activity
-                {
-                    ProjectId = entityEntry.Property(a => a.Id).CurrentValue,
-                    Description = "updated",
-                    SubjectId = entityEntry.Property(a => a.Id).CurrentValue,
-                    SubjectType = "Project",
-                    EntityData = JsonConvert.SerializeObject(((Project)entityEntry.Entity).ToProjectDto(), settings)
-                });
+                RecordActivity((Project)entityEntry.Entity, "updated", differences);
             }
         }
 
@@ -143,7 +129,7 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
                 var currentValue = currentValues[property];
                 var originalValue = originalValues[property];
 
-                if (!Equals(currentValue, originalValue))
+                if (!Equals(currentValue, originalValue) && property.Name != "UpdatedAt")
                 {
                     differences.Add(property.Name, new Tuple<object, object>(originalValue, currentValue));
                 }
@@ -152,26 +138,11 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
             ProjectTask task = (ProjectTask)entityEntry.Entity;
             if (differences.Count == 2 && differences.ContainsKey("Completed"))
             {
-                Activities.Add(new Activity
-                {
-                    ProjectId = entityEntry.Property(a => a.ProjectId).CurrentValue,
-                    Description = entityEntry.Property(a => a.Completed).CurrentValue ? "completed_task" : "incompleted_task",
-                    SubjectId = entityEntry.Property(a => a.Id).CurrentValue,
-                    SubjectType = "ProjectTask",
-                    EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
-                });
+                RecordActivity(task, task.Completed ? "completed_task" : "incompleted_task");
             }
             else if (!(differences.Count == 1 && differences.ContainsKey("UpdatedAt")))
             {
-                Activities.Add(new Activity
-                {
-
-                    ProjectId = entityEntry.Property(a => a.ProjectId).CurrentValue,
-                    Description = "updated",
-                    SubjectId = entityEntry.Property(a => a.Id).CurrentValue,
-                    SubjectType = "ProjectTask",
-                    EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
-                });
+                RecordActivity(task, "updated_task");
             }
         }
     }
@@ -183,14 +154,7 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
         foreach (var task in tasksAdded)
         {
-            Activities.Add(new Activity
-            {
-                ProjectId = task.ProjectId,
-                Description = "created_task",
-                SubjectId = task.Id,
-                SubjectType = "ProjectTask",
-                EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
-            });
+            RecordActivity(task, "created_task");
         }
 
         base.SaveChanges();
@@ -205,15 +169,56 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
 
         foreach (var task in tasksDeleted)
         {
-            Activities.Add(new Activity
-            {
-                ProjectId = task.ProjectId,
-                Description = "deleted_task",
-                SubjectId = task.Id,
-                SubjectType = "ProjectTask",
-                EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
-            });
+            RecordActivity(task, "deleted_task");
         }
+    }
+
+    private string? ActivityChanges(string description, Dictionary<string, Tuple<object, object>>? differences)
+    {
+        if (description != "updated" || differences == null || differences.Count == 0)
+        {
+            return null;
+        }
+
+        var changes = new
+        {
+            Before = differences.ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.Item1
+            ),
+            After = differences.ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.Item2
+            ),
+        };
+
+        return JsonConvert.SerializeObject(changes, settings);
+    }
+
+
+    private void RecordActivity(Project project, string description, Dictionary<string, Tuple<object, object>>? differences = null)
+    {
+        Activities.Add(new Activity
+        {
+            SubjectId = project.Id,
+            ProjectId = project.Id,
+            Description = description,
+            SubjectType = "Project",
+            EntityData = JsonConvert.SerializeObject(project.ToProjectDto(), settings),
+            Changes = ActivityChanges(description, differences)
+        });
+    }
+
+    private void RecordActivity(ProjectTask task, string description)
+    {
+        Activities.Add(new Activity
+        {
+            ProjectId = task.ProjectId,
+            Description = description,
+            SubjectId = task.Id,
+            SubjectType = "ProjectTask",
+            EntityData = JsonConvert.SerializeObject(task.ToProjectTaskDto(), settings)
+        });
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -239,20 +244,5 @@ public class BirdboardDbContext : IdentityDbContext<AppUser>
                 },
             };
         builder.Entity<IdentityRole>().HasData(roles);
-
-        // builder.Entity<Project>()
-        //     .HasDiscriminator<string>("Discriminator")
-        //     .HasValue<Project>("Project");
-
-        // builder.Entity<Activity>()
-        //     .HasKey(c => c.Id);
-
-        // builder.Entity<Activity>()
-        //     .Property(c => c.SubjectType)
-        //     .IsRequired();
-
-        // builder.Entity<Activity>()
-        //     .Property(c => c.SubjectId)
-        //     .IsRequired();
     }
 }

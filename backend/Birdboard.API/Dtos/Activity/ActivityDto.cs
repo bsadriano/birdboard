@@ -8,5 +8,6 @@ public class ActivityDto
     public int SubjectId { get; set; }
     public string SubjectType { get; set; }
     public object EntityData { get; set; }
+    public object Changes { get; set; }
     public DateTime CreatedAt { get; set; }
 }

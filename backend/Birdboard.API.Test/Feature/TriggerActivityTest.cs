@@ -2,6 +2,8 @@ using System.Net.Http.Json;
 using Birdboard.API.Dtos.ProjectTask;
 using Birdboard.API.Test.Helper;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Birdboard.API.Test.Feature;
 
@@ -15,17 +17,19 @@ public class TriggerActivityTest : AbstractIntegrationTest
     [Fact]
     public async void CreatingAProject()
     {
-        var project = await _projectFactory.Create(true);
+        await _projectFactory.Create(true);
 
         DbContext.Activities.Count().Should().Be(1);
-        DbContext.Activities.First().Description.Should().Be("created");
+        var activity = DbContext.Activities.Last();
+        activity.Description.Should().Be("created");
+        activity.Changes.Should().BeNullOrEmpty();
     }
 
     [Fact]
     public async void UpdatingAProject()
     {
         var project = await _projectFactory.Create(true);
-
+        var originalTitle = project.Title;
         project.Title = "Changed";
 
         await DbContext.SaveChangesAsync();
@@ -33,6 +37,11 @@ public class TriggerActivityTest : AbstractIntegrationTest
         DbContext.Activities.Count().Should().Be(2);
         var last = await DbContext.Activities.OrderBy(a => a.Id).LastAsync();
         last.Description.Should().Be("updated");
+        last.Changes.Should().ContainAll("before", "after");
+        JObject jObject = JsonConvert.DeserializeObject<dynamic>(last.Changes);
+
+        jObject["before"]["title"].ToString().Should().Be(originalTitle);
+        jObject["after"]["title"].ToString().Should().Be("Changed");
     }
 
     [Fact]

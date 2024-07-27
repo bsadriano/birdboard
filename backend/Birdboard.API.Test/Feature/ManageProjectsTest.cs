@@ -52,7 +52,7 @@ public class ManageProjectsTest : AbstractIntegrationTest
         var response = await Client.GetAsync(HttpHelper.Urls.Projects);
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-        var result = await response.Content.ReadFromJsonAsync<List<Project>>();
+        var result = await response.Content.ReadFromJsonAsync<List<ProjectDto>>();
         result.Count().Should().Be(1);
         result.First().Title.Should().Be(newProject.Title);
 

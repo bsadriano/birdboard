@@ -67,7 +67,8 @@ public class ProjectRepository : IProjectRepository
     private ProjectDto projectWithActivites(Project project, List<Activity> activities)
     {
         var projectDto = project.ToProjectDto();
-        projectDto.Activities = activities;
+        projectDto.Activities = activities
+            .Select(a => a.ToActivityDto()).ToList();
 
         return projectDto;
     }
@@ -88,8 +89,8 @@ public class ProjectRepository : IProjectRepository
             project.Description = model.Description;
         if (model.UpdatedAt is not null)
             project.UpdatedAt = (DateTime)model.UpdatedAt;
-
-        project.Notes = model.Notes;
+        if (model.Notes is not null)
+            project.Notes = model.Notes;
 
         await _context.SaveChangesAsync();
 

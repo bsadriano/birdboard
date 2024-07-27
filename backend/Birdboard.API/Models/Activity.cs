@@ -10,4 +10,5 @@ public class Activity : BaseEntity
     public int SubjectId { get; set; }
     public string SubjectType { get; set; }
     public string EntityData { get; set; }
+    public string? Changes { get; set; }
 }

@@ -1,6 +1,4 @@
-import { string } from "yup";
 import { ProjectTaskGet } from "./ProjectTask";
-import { ActivityMapKey } from "../Components/Projects/ActivityCard/ActivityCard";
 
 export type ProjectGet = {
   id: number;
@@ -28,6 +26,7 @@ export type ProjectActivity = {
   };
   subjectId: number;
   subjectType: "Project";
+  changes: any;
 };
 
 export type TaskActivity = {
@@ -44,6 +43,7 @@ export type TaskActivity = {
   };
   subjectId: number;
   subjectType: "ProjectTask";
+  changes: any;
 };
 
 export type ProjectResponse = {
