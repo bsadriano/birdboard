@@ -1,5 +1,4 @@
 using Birdboard.API.Data;
-using Birdboard.API.Dtos.Activity;
 using Birdboard.API.Dtos.Project;
 using Birdboard.API.Mappers;
 using Birdboard.API.Models;
@@ -95,5 +94,22 @@ public class ProjectRepository : IProjectRepository
         await _context.SaveChangesAsync();
 
         return project.ToProjectDto();
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var project = await _context.Projects
+            .Include(p => p.Owner)
+            .Include(p => p.Tasks)
+            .FirstOrDefaultAsync(i => i.Id == id);
+
+        if (project == null)
+            return false;
+
+        _context.Projects.Remove(project);
+
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 }

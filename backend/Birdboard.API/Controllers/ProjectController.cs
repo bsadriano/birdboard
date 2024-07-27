@@ -103,4 +103,26 @@ public class ProjectController : ControllerBase
 
         return Ok(updatedProject);
     }
+
+    [HttpDelete]
+    [Route("{id:int}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> UpdateProject([FromRoute] int id)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var project = await _projectRepository.GetByIdAsync(id);
+
+        if (project!.OwnerId != _userService.GetAuthId())
+            return StatusCode(403);
+
+        var result = await _projectRepository.DeleteAsync(id);
+
+        if (!result)
+            return NotFound();
+
+        return NoContent();
+    }
 }

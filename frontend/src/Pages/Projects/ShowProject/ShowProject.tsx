@@ -1,5 +1,5 @@
 import { act, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import ProjectCard from "../../../Components/Projects/ProjectCard/ProjectCard";
@@ -25,6 +25,7 @@ const validation = Yup.object().shape({
 });
 
 const ShowProject = (props: Props) => {
+  const navigate = useNavigate();
   const { projectId } = useParams();
   const [project, setProject] = useState<ProjectGet>();
   const {
@@ -42,7 +43,6 @@ const ShowProject = (props: Props) => {
     projectGetAPI(projectId)
       .then((res) => {
         if (res?.data) {
-          console.log(res.data);
           setProject(res?.data);
         }
       })
@@ -64,6 +64,10 @@ const ShowProject = (props: Props) => {
         toast.warning(e);
       });
   };
+
+  function handleDelete(): void {
+    navigate("/projects");
+  }
 
   return (
     <>
@@ -121,7 +125,7 @@ const ShowProject = (props: Props) => {
           <div className="lg:w-1/4 px-3">
             {project && (
               <>
-                <ProjectCard project={project} />
+                <ProjectCard project={project} onDelete={handleDelete} />
                 <ActivityCard project={project} />
               </>
             )}

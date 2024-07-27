@@ -1,5 +1,5 @@
 import { ProjectGet } from "../Models/Project";
-import { getAPI, patchAPI, postAPI } from "./ApiService";
+import { deleteAPI, getAPI, patchAPI, postAPI } from "./ApiService";
 
 const api = `${process.env.REACT_APP_API_URL}/projects`;
 
@@ -26,3 +26,6 @@ export const projectPatchAPI = async (
   projectId: number | string,
   projectData: UpdateProjectData
 ) => patchAPI<ProjectGet>(`${api}/${projectId}`, projectData);
+
+export const projectsDeleteAPI = async (projectId: number | string) =>
+  deleteAPI(`${api}/${projectId}`);

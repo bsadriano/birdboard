@@ -41,7 +41,7 @@ const ListProjects = (props: Props) => {
         {projects ? (
           projects.map((project) => (
             <div key={project.id} className="lg:w-1/3 px-3 pb-6">
-              <ProjectCard project={project} />
+              <ProjectCard project={project} onDelete={getProjects} />
             </div>
           ))
         ) : (

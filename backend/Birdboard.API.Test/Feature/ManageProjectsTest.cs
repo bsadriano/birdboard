@@ -64,6 +64,34 @@ public class ManageProjectsTest : AbstractIntegrationTest
     }
 
     [Fact]
+    public async void UnauthorizedUsersCannotDeleteProjects()
+    {
+        var newProject = await _projectFactory.Create();
+
+        var response = await Client.DeleteAsync(newProject.Path());
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Unauthorized);
+
+        await SignIn();
+
+        response = await Client.DeleteAsync(newProject.Path());
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async void AUserCanDeleteAProject()
+    {
+        var newProject = await _projectFactory.Create();
+
+        await SignIn(newProject.Owner);
+
+        var response = await Client.DeleteAsync(newProject.Path());
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+
+        var project = DbContext.Projects.FirstOrDefault(p => p.Id == newProject.Id);
+        project.Should().BeNull();
+    }
+
+    [Fact]
     public async void AUserCanUpdateAProject()
     {
         var newProject = await _projectFactory.Create();

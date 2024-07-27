@@ -27,3 +27,12 @@ export const patchAPI = async <T,>(url: string, data: any) => {
     return null;
   }
 };
+
+export const deleteAPI = async (url: string) => {
+  try {
+    return await axios.delete(url);
+  } catch (error) {
+    handleError(error);
+    return null;
+  }
+};
