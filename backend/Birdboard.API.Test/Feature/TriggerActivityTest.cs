@@ -20,7 +20,7 @@ public class TriggerActivityTest : AbstractIntegrationTest
         await _projectFactory.Create(true);
 
         DbContext.Activities.Count().Should().Be(1);
-        var activity = DbContext.Activities.Last();
+        var activity = await DbContext.Activities.OrderBy(a => a.Id).LastAsync();
         activity.Description.Should().Be("created");
         activity.Changes.Should().BeNullOrEmpty();
     }
