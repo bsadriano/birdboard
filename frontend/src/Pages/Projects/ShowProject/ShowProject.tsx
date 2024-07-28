@@ -77,7 +77,7 @@ const ShowProject = (props: Props) => {
     <>
       <header className="flex items-center mb-3 py-4">
         <div className="flex justify-between items-end w-full">
-          <p className="text-grey text-sm font-normal">
+          <p className="text-default text-sm font-normal">
             <Link to="/projects">My Projects</Link> / {project?.title}
           </p>
 
@@ -109,7 +109,7 @@ const ShowProject = (props: Props) => {
         <div className="lg:flex -mx-3 mb-6">
           <div className="lg:w-3/4 px-3">
             <div className="mb-8">
-              <h2 className="text-grey font-normal text-lg mb-3">Tasks</h2>
+              <h2 className="text-default font-normal text-lg mb-3">Tasks</h2>
               {project?.tasks &&
                 project?.tasks?.map((task) => (
                   <div key={task.id} className="card mb-3">
@@ -125,7 +125,7 @@ const ShowProject = (props: Props) => {
                   <input
                     type="text"
                     placeholder="Begin adding tasks..."
-                    className="w-full"
+                    className="bg-card text-default w-full"
                     {...register("body")}
                   />
                   {errors.body && (
@@ -138,7 +138,7 @@ const ShowProject = (props: Props) => {
             </div>
 
             <div>
-              <h2 className="text-grey font-normal text-lg mb-3">
+              <h2 className="text-default font-normal text-lg mb-3">
                 General Notes
               </h2>
               {project && <GeneralNotes project={project} />}

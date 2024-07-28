@@ -50,7 +50,6 @@ const GeneralNotes = ({ project }: Props) => {
   });
 
   const handleUpdateNotes = (data: UpdateNotesFormInput) => {
-    console.log(data);
     projectPatchAPI(project!.id, data)
       .then((res) => {
         if (res) {

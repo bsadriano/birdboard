@@ -21,10 +21,15 @@ module.exports = {
         DEFAULT: "0 0 5px 0 rgba(0, 0, 0, 0.08)",
       },
       colors: {
+        default: "var(--text-default-color)",
         'grey-light': '#F5F6F9',
         'grey': 'rgba(0, 0, 0, 0.4)',
         'blue': '#47cdff',
-        'blue-light': '#8ae2fe'
+        'blue-light': '#8ae2fe',
+        'card': "var(--card-background-color)",
+        'page': "var(--page-background-color)",
+        'button': "var(--button-background-color)",
+        'header': "var(--header-background-color)"
       },
     },
   },
@@ -32,11 +37,12 @@ module.exports = {
     function ({ addUtilities }) {
       addUtilities({
         ".button": {
-          "@apply bg-blue text-white no-underline rounded-lg text-sm py-2 px-5": {},
+          "@apply bg-button text-white no-underline rounded-lg text-sm py-2 px-5": {},
           "box-shadow": "0 2px 7px 0 #b0eaff",
         },
         ".card": {
-          "@apply bg-white p-5 rounded-lg shadow": {},
+          "@apply bg-card p-5 rounded-lg shadow": {},
+          color: "var(--text-default-color)",
         },
       })
     }

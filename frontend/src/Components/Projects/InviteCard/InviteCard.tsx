@@ -56,7 +56,7 @@ const InviteCard = ({ projectId, onInviteUser }: Props) => {
           <input
             type="email"
             id="email"
-            className="border border-grey rounded w-full py-2 px-3"
+            className="bg-card text-default border border-grey rounded w-full py-2 px-3"
             placeholder="Email address"
             {...register("email")}
           />

@@ -30,7 +30,7 @@ const ListProjects = (props: Props) => {
     <>
       <header className="flex items-center mb-3 py-4">
         <div className="flex justify-between items-end w-full">
-          <h2 className="text-grey text-sm font-normal">My Projects</h2>
+          <h2 className="text-default text-sm font-normal">My Projects</h2>
           <Link className="button" to="/projects/create">
             New Project
           </Link>

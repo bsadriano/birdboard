@@ -12,7 +12,7 @@ const Nav = (props: Props) => {
   const handleLogout = (e: any) => logout(e);
 
   return (
-    <nav className="bg-white py-2">
+    <nav className="bg-header py-2">
       <div className="container mx-auto flex justify-between items-center py-2">
         <h1>
           <Link className="navbar-brand" to="/projects">

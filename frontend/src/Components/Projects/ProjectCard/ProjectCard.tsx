@@ -38,9 +38,7 @@ const ProjectCard = ({ project, onDelete = () => {} }: Props) => {
         <Link to={`/projects/${project.id}`}>{project.title}</Link>
       </h3>
 
-      <div className="text-grey mb-4 flex-1">
-        {stringLimit(project.description, 100)}
-      </div>
+      <div className="mb-4 flex-1">{stringLimit(project.description, 100)}</div>
 
       {isAuthUser(project.owner.email) && (
         <footer>

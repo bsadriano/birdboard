@@ -60,7 +60,7 @@ const ActivityCard = ({ project }: Props) => {
                   <li key={activity.id} className="mb-1">
                     {getActivityMessage(activity)}
                     &nbsp;
-                    <span className="text-grey">
+                    <span>
                       {moment.utc(activity.createdAt).local().fromNow()}
                     </span>
                   </li>
@@ -70,7 +70,7 @@ const ActivityCard = ({ project }: Props) => {
                   <li key={activity.id} className="mb-1">
                     {getActivityMessage(activity)}
                     &nbsp;
-                    <span className="text-grey">
+                    <span>
                       {moment.utc(activity.createdAt).local().fromNow()}
                     </span>
                   </li>
