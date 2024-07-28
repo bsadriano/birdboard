@@ -13,6 +13,7 @@ type UserContextType = {
   loginUser: (username: string, password: string) => void;
   logout: (e: any) => void;
   isLoggedIn: () => boolean;
+  isGuest: () => boolean;
   isAuthUser: (email: string) => boolean;
 };
 
@@ -81,6 +82,8 @@ export const UserProvider = ({ children }: Props) => {
 
   const isLoggedIn = () => !!user;
 
+  const isGuest = () => !user;
+
   const logout = (e: any) => {
     e.preventDefault();
     localStorage.removeItem("token");
@@ -101,6 +104,7 @@ export const UserProvider = ({ children }: Props) => {
         logout,
         isLoggedIn,
         registerUser,
+        isGuest,
         isAuthUser,
       }}
     >

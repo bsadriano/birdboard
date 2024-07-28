@@ -8,7 +8,7 @@ import { UserProvider } from "./Context/useAuth";
 function App() {
   return (
     <UserProvider>
-      <div className="theme-light bg-page min-h-screen">
+      <div id="main" className="theme-light bg-page min-h-screen">
         <Nav></Nav>
         <div className="container mx-auto py-4 section">
           <Outlet />

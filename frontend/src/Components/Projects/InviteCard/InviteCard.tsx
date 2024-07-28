@@ -47,7 +47,7 @@ const InviteCard = ({ projectId, onInviteUser }: Props) => {
 
   return (
     <div className="card flex flex-col mt-3">
-      <h3 className="font-normal text-xl py-4 -ml-5 mb-3 border-l-4 border-blue-light pl-4">
+      <h3 className="font-normal text-xl py-4 -ml-5 mb-3 border-l-4 border-accent pl-4">
         Invite a User
       </h3>
 
@@ -56,7 +56,10 @@ const InviteCard = ({ projectId, onInviteUser }: Props) => {
           <input
             type="email"
             id="email"
-            className="bg-card text-default border border-grey rounded w-full py-2 px-3"
+            className={
+              "bg-card text-default border rounded w-full py-2 px-3 " +
+              (errors.email ? "border-red-400" : "border-grey")
+            }
             placeholder="Email address"
             {...register("email")}
           />
@@ -66,7 +69,7 @@ const InviteCard = ({ projectId, onInviteUser }: Props) => {
         </div>
 
         <button type="submit" className="button">
-          Inivte
+          Invite
         </button>
       </form>
     </div>
