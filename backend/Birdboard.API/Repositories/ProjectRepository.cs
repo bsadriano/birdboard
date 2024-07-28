@@ -168,6 +168,9 @@ public class ProjectRepository : IProjectRepository
         if (project == null)
             return false;
 
+        var members = _context.ProjectMembers.Where(pm => pm.ProjectId == id);
+        _context.ProjectMembers.RemoveRange(members);
+
         _context.Projects.Remove(project);
 
         await _context.SaveChangesAsync();

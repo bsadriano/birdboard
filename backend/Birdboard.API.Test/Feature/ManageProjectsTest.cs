@@ -93,6 +93,19 @@ public class ManageProjectsTest : AbstractIntegrationTest
 
         response = await Client.DeleteAsync(newProject.Path());
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
+
+        var user = await _userFactory.Create(true);
+        await DbContext.ProjectMembers.AddAsync(new ProjectMember
+        {
+            ProjectId = newProject.Id,
+            UserId = user.Id
+        });
+        await DbContext.SaveChangesAsync();
+
+        await SignIn(user);
+
+        response = await Client.DeleteAsync(newProject.Path());
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
     }
 
     [Fact]

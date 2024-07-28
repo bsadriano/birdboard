@@ -121,9 +121,7 @@ public class ProjectController : ControllerBase
 
         var project = await _projectRepository.GetByIdAsync(id);
 
-        var isMember = await _projectRepository.IsMember(id, _userService.GetAuthId());
-
-        if (project!.OwnerId != _userService.GetAuthId() && !isMember)
+        if (project!.OwnerId != _userService.GetAuthId())
             return StatusCode(403);
 
         var result = await _projectRepository.DeleteAsync(id);

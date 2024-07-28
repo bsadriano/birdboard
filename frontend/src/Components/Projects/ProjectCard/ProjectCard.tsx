@@ -4,6 +4,7 @@ import { ProjectGet } from "../../../Models/Project";
 import { FormEvent } from "react";
 import { projectsDeleteAPI } from "../../../Services/ProjectService";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../Context/useAuth";
 
 interface Props {
   project: ProjectGet;
@@ -11,6 +12,8 @@ interface Props {
 }
 
 const ProjectCard = ({ project, onDelete = () => {} }: Props) => {
+  const { isAuthUser } = useAuth();
+
   function handleDelete(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
 
@@ -39,15 +42,17 @@ const ProjectCard = ({ project, onDelete = () => {} }: Props) => {
         {stringLimit(project.description, 100)}
       </div>
 
-      <footer>
-        <form onSubmit={handleDelete}>
-          <div className="text-right">
-            <button type="submit" className="text-xs">
-              Delete
-            </button>
-          </div>
-        </form>
-      </footer>
+      {isAuthUser(project.owner.email) && (
+        <footer>
+          <form onSubmit={handleDelete}>
+            <div className="text-right">
+              <button type="submit" className="text-xs">
+                Delete
+              </button>
+            </div>
+          </form>
+        </footer>
+      )}
     </div>
   );
 };
