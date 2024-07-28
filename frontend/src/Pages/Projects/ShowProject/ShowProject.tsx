@@ -1,4 +1,4 @@
-import { act, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -12,6 +12,8 @@ import UpdateTaskForm from "../../../Components/Projects/UpdateTaskForm/UpdateTa
 import GeneralNotes from "../../../Components/Projects/GeneralNotes/GeneralNotes";
 import ActivityCard from "../../../Components/Projects/ActivityCard/ActivityCard";
 import { gravatar_url } from "../../../Helpers/Gravatar_Url";
+import InviteCard from "../../../Components/Projects/InviteCard/InviteCard";
+import { useAuth } from "../../../Context/useAuth";
 
 interface Props {}
 
@@ -35,6 +37,7 @@ const ShowProject = (props: Props) => {
     reset,
     formState: { errors },
   } = useForm<AddTaskFormInputs>({ resolver: yupResolver(validation) });
+  const { isAuthUser } = useAuth();
 
   useEffect(() => {
     getProject(projectId!);
@@ -83,6 +86,7 @@ const ShowProject = (props: Props) => {
               project?.members.map((member) => {
                 return (
                   <img
+                    key={member.email}
                     src={gravatar_url(member.email)}
                     alt={`${member.userName}'s avatar`}
                     className="rounded-full w-8 mr-2"
@@ -146,6 +150,15 @@ const ShowProject = (props: Props) => {
               <>
                 <ProjectCard project={project} onDelete={handleDelete} />
                 <ActivityCard project={project} />
+
+                {isAuthUser(project.owner.email) && (
+                  <InviteCard
+                    projectId={project.id}
+                    onInviteUser={() => {
+                      getProject(project.id.toString());
+                    }}
+                  />
+                )}
               </>
             )}
           </div>

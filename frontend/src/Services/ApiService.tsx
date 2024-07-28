@@ -14,8 +14,7 @@ export const postAPI = async <T,>(url: string, data: any) => {
   try {
     return await axios.post<T>(url, data);
   } catch (error) {
-    handleError(error);
-    return null;
+    throw error;
   }
 };
 

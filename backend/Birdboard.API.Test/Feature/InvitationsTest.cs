@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Birdboard.API.Dtos.ProjectInvitation;
+using Birdboard.API.Models;
 using Birdboard.API.Test.Helper;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,14 +18,25 @@ public class InvitationsTest : AbstractIntegrationTest
         var project = await _projectFactory
             .Create(true);
         var user = await _userFactory.Create(true);
+        var userToInvite = await _userFactory.Create(true);
 
         await SignIn(user);
 
         var httpContent = Http.BuildContent(new ProjectInvitationRequestDto
         {
-            Email = "some@email.com"
+            Email = userToInvite.Email
         });
         var response = await Client.PostAsync(project.Path() + "/invitations", httpContent);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
+
+        await DbContext.ProjectMembers.AddAsync(new ProjectMember
+        {
+            UserId = user.Id,
+            ProjectId = project.Id
+        });
+        await DbContext.SaveChangesAsync();
+
+        response = await Client.PostAsync(project.Path() + "/invitations", httpContent);
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
     }
 

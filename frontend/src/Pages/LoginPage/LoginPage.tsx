@@ -53,7 +53,9 @@ const LoginPage = (props: Props) => {
                   {...register("userName")}
                 />
                 {errors.userName && (
-                  <p className="text-white">{errors.userName.message}</p>
+                  <p className="text-red-400 text-sm">
+                    {errors.userName.message}
+                  </p>
                 )}
               </div>
               <div>
@@ -71,7 +73,9 @@ const LoginPage = (props: Props) => {
                   {...register("password")}
                 />
                 {errors.password && (
-                  <p className="text-white">{errors.password.message}</p>
+                  <p className="text-red-400 text-sm">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
               <div className="flex items-center justify-between">

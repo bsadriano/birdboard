@@ -13,6 +13,7 @@ type UserContextType = {
   loginUser: (username: string, password: string) => void;
   logout: (e: any) => void;
   isLoggedIn: () => boolean;
+  isAuthUser: (email: string) => boolean;
 };
 
 type Props = { children: React.ReactNode };
@@ -89,9 +90,19 @@ export const UserProvider = ({ children }: Props) => {
     navigate("/");
   };
 
+  const isAuthUser = (emali: string) => user?.email === emali;
+
   return (
     <UserContext.Provider
-      value={{ loginUser, user, token, logout, isLoggedIn, registerUser }}
+      value={{
+        loginUser,
+        user,
+        token,
+        logout,
+        isLoggedIn,
+        registerUser,
+        isAuthUser,
+      }}
     >
       {isReady ? children : null}
     </UserContext.Provider>

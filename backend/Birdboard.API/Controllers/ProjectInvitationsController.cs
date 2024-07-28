@@ -47,9 +47,8 @@ public class ProjectInvitationsController : ControllerBase
 
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == requestDto.Email);
         var project = await _dbContext.Projects.FindAsync(projectId);
-        var isMember = await _projectRepository.IsMember(projectId, _userService.GetAuthId());
 
-        if (project!.OwnerId != _userService.GetAuthId() && !isMember)
+        if (project!.OwnerId != _userService.GetAuthId())
             return StatusCode(403);
 
         if (user is null)
@@ -57,13 +56,14 @@ public class ProjectInvitationsController : ControllerBase
             {
                 errors = new
                 {
-                    email = "The user you are inviting must have a Birdboard account"
+                    email = new string[] {
+                        "The user you are inviting must have a Birdboard account"
+                    }
                 }
             });
 
         if (project is null)
             return BadRequest("Project not found");
-
 
         var projectMember = await _projectMemberRepository.CreateAsync(new ProjectMember
         {

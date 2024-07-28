@@ -30,11 +30,12 @@ const ProjectCard = ({ project, onDelete = () => {} }: Props) => {
   }
 
   return (
-    <div className="card" style={{ height: "200px" }}>
+    <div className="card flex flex-col" style={{ height: "200px" }}>
       <h3 className="font-normal text-xl py-4 -ml-5 mb-3 border-l-4 border-blue-light pl-4">
         <Link to={`/projects/${project.id}`}>{project.title}</Link>
       </h3>
-      <div className="text-grey mb-4">
+
+      <div className="text-grey mb-4 flex-1">
         {stringLimit(project.description, 100)}
       </div>
 
