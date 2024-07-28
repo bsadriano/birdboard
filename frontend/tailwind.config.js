@@ -22,14 +22,15 @@ module.exports = {
       },
       colors: {
         default: "var(--text-default-color)",
-        'grey-light': '#F5F6F9',
-        'grey': 'rgba(0, 0, 0, 0.4)',
-        'blue': '#47cdff',
-        'blue-light': '#8ae2fe',
-        'card': "var(--card-background-color)",
-        'page': "var(--page-background-color)",
-        'button': "var(--button-background-color)",
-        'header': "var(--header-background-color)"
+        accent: "var(--text-accent-color)",
+        "accent-light": "var(--text-accent-light-color)",
+        muted: "var(--text-muted-color)",
+        "muted-light": "var(--text-muted-light-color)",
+        error: "var(--text-error-color)",
+        page: "var(--page-background-color)",
+        card: "var(--card-background-color)",
+        button: "var(--button-background-color)",
+        header: "var(--header-background-color)",
       },
     },
   },
@@ -39,10 +40,17 @@ module.exports = {
         ".button": {
           "@apply bg-button text-white no-underline rounded-lg text-sm py-2 px-5": {},
           "box-shadow": "0 2px 7px 0 #b0eaff",
+          "&.is-outlined": {
+            "@apply bg-card border border-accent text-accent": {},
+          },
         },
         ".card": {
           "@apply bg-card p-5 rounded-lg shadow": {},
           color: "var(--text-default-color)",
+        },
+        a: {
+          "@apply no-underline text-blue-600 hover:text-blue-800":
+            {},
         },
       })
     }

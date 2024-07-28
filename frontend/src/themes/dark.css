@@ -1,0 +1,14 @@
+.theme-dark {
+  --page-background-color: #17181e;
+  --card-background-color: #1f2027;
+  --button-background-color: #59b6f9;
+  --header-background-color: #1f2027;
+  --button-box-shadow: "0 2px 7px 0 #107599";
+
+  --text-default-color: #fff;
+  --text-muted-color: rgba(255, 255, 255, 0.5);
+  --text-muted-light-color: rgba(255, 255, 255, 0.3);
+  --text-accent-color: #47cdff;
+  --text-accent-light-color: #8ae2fe;
+  --text-error-color: #b91c1c;
+}
