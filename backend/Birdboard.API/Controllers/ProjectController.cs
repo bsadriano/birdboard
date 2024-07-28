@@ -18,7 +18,9 @@ public class ProjectController : ControllerBase
     private readonly IProjectRepository _projectRepository;
     private readonly UserManager<AppUser> _userManager;
 
-    public ProjectController(IUserService userService, IProjectRepository projectRepository, UserManager<AppUser> userManager)
+    public ProjectController(
+        IUserService userService,
+        IProjectRepository projectRepository, UserManager<AppUser> userManager)
     {
         _userService = userService;
         _projectRepository = projectRepository;
@@ -112,7 +114,7 @@ public class ProjectController : ControllerBase
     [Route("{id:int}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> UpdateProject([FromRoute] int id)
+    public async Task<IActionResult> DeleteProject([FromRoute] int id)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -121,7 +123,7 @@ public class ProjectController : ControllerBase
 
         var isMember = await _projectRepository.IsMember(id, _userService.GetAuthId());
 
-        if (project!.OwnerId != _userService.GetAuthId() || !isMember)
+        if (project!.OwnerId != _userService.GetAuthId() && !isMember)
             return StatusCode(403);
 
         var result = await _projectRepository.DeleteAsync(id);

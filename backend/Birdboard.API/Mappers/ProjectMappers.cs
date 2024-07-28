@@ -16,7 +16,7 @@ public static class ProjectMappers
             Path = projectModel.Path(),
             CreatedAt = projectModel.CreatedAt,
             UpdatedAt = projectModel.UpdatedAt,
-            Owner = projectModel.Owner.ToAppUserDto(),
+            Owner = projectModel.Owner is not null ? projectModel.Owner.ToAppUserDto() : null,
             Tasks = projectModel.Tasks.Select(t => t.ToProjectTaskDto()).ToList(),
             Members = projectModel.Members.Select(t => t.User.ToAppUserDto()).ToList()
         };
