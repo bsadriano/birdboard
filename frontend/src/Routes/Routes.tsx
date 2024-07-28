@@ -8,6 +8,7 @@ import LoginPage from "../Pages/LoginPage/LoginPage";
 import RegisterPage from "../Pages/RegisterPage/RegisterPage";
 import ProtectedRoute from "./ProtectedRoute";
 import EditProject from "../Pages/Projects/EditProject/EditProject";
+import GuestRoute from "./GuestRoute";
 
 export const router = createBrowserRouter([
   {
@@ -54,8 +55,22 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      { path: "login", element: <LoginPage /> },
-      { path: "register", element: <RegisterPage /> },
+      {
+        path: "login",
+        element: (
+          <GuestRoute>
+            <LoginPage />
+          </GuestRoute>
+        ),
+      },
+      {
+        path: "register",
+        element: (
+          <GuestRoute>
+            <RegisterPage />
+          </GuestRoute>
+        ),
+      },
     ],
   },
 ]);

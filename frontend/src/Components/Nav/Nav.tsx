@@ -1,10 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../Context/useAuth";
+import { toast } from "react-toastify";
 // import logo from "./logo.svg";
 
 interface Props {}
 
 const Nav = (props: Props) => {
+  const { isLoggedIn, logout } = useAuth();
+
+  const handleLogout = (e: any) => logout(e);
+
   return (
     <nav className="bg-white py-2">
       <div className="container mx-auto flex justify-between items-center py-2">
@@ -38,16 +44,26 @@ const Nav = (props: Props) => {
           </Link>
         </h1>
 
-        <div>
-          <div className="flex items-center ml-auto text-default">
-            <Link className="nav-link" to="login">
-              Login
-            </Link>
-            <Link className="nav-link" to="register">
-              Register
-            </Link>
+        {!isLoggedIn() ? (
+          <div>
+            <div className="flex items-center ml-auto text-default">
+              <Link className="nav-link mr-2" to="login">
+                Login
+              </Link>
+              <Link className="nav-link" to="register">
+                Register
+              </Link>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div>
+            <div className="flex items-center ml-auto text-default">
+              <button className="nav-link" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
