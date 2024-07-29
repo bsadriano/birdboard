@@ -9,8 +9,8 @@ export const projectGetAPI = async (id: string) =>
   getAPI<ProjectGet>(`${api}/${id}`);
 
 export type ProjectFormInputs = {
-  title: string;
-  description: string;
+  Title: string;
+  Description: string;
 };
 
 export const projectsPostAPI = async (projectData: ProjectFormInputs) =>

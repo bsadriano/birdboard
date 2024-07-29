@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import ProjectCard from "../../../Components/Projects/ProjectCard/ProjectCard";
+import SaveProjectModal from "../../../Components/Projects/SaveProjectModal/SaveProjectModal";
 import { ProjectGet } from "../../../Models/Project";
 import { projectsGetAPI } from "../../../Services/ProjectService";
-import { toast } from "react-toastify";
-import SaveProjectModal from "../../../Components/Projects/SaveProjectModal/SaveProjectModal";
 
 interface Props {}
 

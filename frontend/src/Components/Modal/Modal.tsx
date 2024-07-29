@@ -1,12 +1,9 @@
-import { Children } from "react";
-
 interface Props {
   isOpen: boolean;
-  onClose: () => void;
   children: React.ReactNode;
 }
 
-const Modal = ({ isOpen, onClose, children }: Props) => {
+const Modal = ({ isOpen, children }: Props) => {
   return (
     <div
       className={`fixed inset-0 flex justify-center items-center transition-colors ${

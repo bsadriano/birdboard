@@ -38,10 +38,10 @@ const SaveProjectForm = ({
             className="bg-transparent border border-grey-light rounded p-2 text-xs w-full"
             placeholder="My next awesome project"
             required
-            {...register("title")}
+            {...register("Title")}
           />
-          {errors.title && (
-            <p className="text-red-400 text-sm">{errors.title.message}</p>
+          {errors.Title && (
+            <p className="text-red-400 text-sm">{errors.Title.message}</p>
           )}
         </div>
       </div>
@@ -56,10 +56,10 @@ const SaveProjectForm = ({
             rows={10}
             placeholder="I should start learning piano"
             required
-            {...register("description")}
+            {...register("Description")}
           />
-          {errors.description && (
-            <p className="text-red-400 text-sm">{errors.description.message}</p>
+          {errors.Description && (
+            <p className="text-red-400 text-sm">{errors.Description.message}</p>
           )}
         </div>
       </div>
