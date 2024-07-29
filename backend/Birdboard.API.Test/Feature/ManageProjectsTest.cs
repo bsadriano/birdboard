@@ -64,6 +64,23 @@ public class ManageProjectsTest : AbstractIntegrationTest
     }
 
     [Fact]
+    public async void TasksCanBeIncludedAsPartOfANewProjectCreation()
+    {
+        await SignIn();
+
+        var newProject = _projectFactory
+            .WithTasks(2)
+            .GetProject(true)
+            .ToCreateProjectRequestDto();
+
+        var httpContent = Http.BuildContent(newProject);
+        var request = await Client.PostAsync(HttpHelper.Urls.Projects, httpContent);
+        request.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
+
+        DbContext.ProjectTasks.Count().Should().Be(2);
+    }
+
+    [Fact]
     public async void AUserCanSeeAlProjectsTheyHaveBeenInvitedToOnTheirDashboard()
     {
         var user = await _userFactory.Create();

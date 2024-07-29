@@ -12,7 +12,7 @@ interface Props {
 }
 
 type Task = {
-  value?: string;
+  Body?: string;
 };
 
 type ProjectFormInputs = {
@@ -32,7 +32,7 @@ const validationSchema = Yup.object().shape({
     .max(50, "Description cannot be over 50 characters"),
   Tasks: Yup.array().of(
     Yup.object().shape({
-      value: Yup.string()
+      Body: Yup.string()
         .min(3, "Task cannot be less than 3 characters")
         .max(50, "Task cannot be over 50 characters"),
     })
@@ -52,7 +52,7 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
     defaultValues: {
       Title: "",
       Description: "",
-      Tasks: [{ value: "" }],
+      Tasks: [{ Body: "" }],
     },
     mode: "onSubmit",
     shouldUnregister: false,
@@ -64,7 +64,7 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
   });
 
   const addTask = () => {
-    append({ value: "" });
+    append({ Body: "" });
   };
 
   const handleAddProject = async (data: ProjectFormInputs) => {
@@ -85,7 +85,7 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
           | "Description"
           | "Tasks"
           | `Tasks.${number}`
-          | `Tasks.${number}.value`;
+          | `Tasks.${number}.Body`;
 
         interface FormErrors {
           [key: string]: string[];
@@ -160,15 +160,15 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
               {fields.map((field, index) => (
                 <div key={field.id} className="mb-2">
                   <Controller
-                    name={`Tasks.${index}.value`}
+                    name={`Tasks.${index}.Body`}
                     control={control}
-                    defaultValue={field.value || ""}
+                    defaultValue={field.Body || ""}
                     render={({ field }) => (
                       <input
                         type="text"
                         className={
                           `border p-2 text-xs block w-full rounded ` +
-                          (errors.Tasks?.[index]?.value
+                          (errors.Tasks?.[index]?.Body
                             ? "border-error"
                             : "border-muted-light")
                         }
@@ -177,9 +177,9 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
                       />
                     )}
                   />
-                  {errors.Tasks?.[index]?.value && (
+                  {errors.Tasks?.[index]?.Body && (
                     <p className="text-error text-xs">
-                      {errors.Tasks[index]?.value?.message}
+                      {errors.Tasks[index]?.Body?.message}
                     </p>
                   )}
                 </div>
@@ -216,7 +216,11 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
           </div>
         </div>
         <footer className="flex justify-end">
-          <button className="button is-outlined mr-4" onClick={closeModal}>
+          <button
+            type="button"
+            className="button is-outlined mr-4"
+            onClick={closeModal}
+          >
             Cancel
           </button>
           <button type="submit" className="button">

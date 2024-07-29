@@ -16,14 +16,18 @@ public class ProjectController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IProjectRepository _projectRepository;
+    private readonly IProjectTaskRepository _projectTaskRepository;
     private readonly UserManager<AppUser> _userManager;
 
     public ProjectController(
         IUserService userService,
-        IProjectRepository projectRepository, UserManager<AppUser> userManager)
+        IProjectRepository projectRepository,
+        IProjectTaskRepository projectTaskRepository,
+        UserManager<AppUser> userManager)
     {
         _userService = userService;
         _projectRepository = projectRepository;
+        _projectTaskRepository = projectTaskRepository;
         _userManager = userManager;
     }
 
@@ -75,6 +79,12 @@ public class ProjectController : ControllerBase
 
         var projectModel = createProjectDto.ToProject();
         projectModel.OwnerId = appUser.Id;
+
+        if (createProjectDto.Tasks is not null)
+        {
+            projectModel.Tasks = createProjectDto.Tasks.Select(t => t.ToProjectTask()).ToList();
+        }
+
         var projectDto = await _projectRepository.CreateAsync(projectModel);
 
         return CreatedAtAction(

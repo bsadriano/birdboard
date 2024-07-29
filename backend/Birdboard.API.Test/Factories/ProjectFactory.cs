@@ -50,7 +50,23 @@ public class ProjectFactory
     public List<Project> GetProjects(int count, bool useNewSeed = false)
     {
         var faker = GetProjectFaker(useNewSeed);
-        return faker.Generate(count);
+
+        var newProjects = faker.Generate(count);
+
+        if (TasksCount > 0)
+        {
+            var projectTaskFactory = new ProjectTaskFactory();
+
+            foreach (var project in newProjects)
+            {
+                var tasks = projectTaskFactory
+                    .WithProject(project)
+                    .GetProjectTasks(TasksCount, true);
+                project.Tasks = tasks;
+            }
+        }
+
+        return newProjects;
     }
 
     public Project GetProject(bool useNewSeed = false)
@@ -79,7 +95,9 @@ public class ProjectFactory
         {
             foreach (var project in newProjects)
             {
-                var tasks = projectTaskFactory.GetProjectTasks(TasksCount, true);
+                var tasks = projectTaskFactory
+                    .WithProject(project)
+                    .GetProjectTasks(TasksCount, true);
                 project.Tasks = tasks;
             }
         }

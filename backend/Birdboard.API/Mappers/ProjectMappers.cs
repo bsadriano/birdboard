@@ -34,6 +34,7 @@ public static class ProjectMappers
         {
             Title = projectModel.Title,
             Description = projectModel.Description,
-            Notes = projectModel.Notes
+            Notes = projectModel.Notes,
+            Tasks = projectModel.Tasks.Select(t => t.ToCreateProjectTaskRequestDto()).ToList()
         };
 }

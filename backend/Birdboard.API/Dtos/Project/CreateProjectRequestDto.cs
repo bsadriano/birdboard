@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Birdboard.API.Dtos.ProjectTask;
 
 namespace Birdboard.API.Dtos.Project;
 
@@ -15,4 +16,6 @@ public class CreateProjectRequestDto
     [MinLength(3, ErrorMessage = "Notes cannot be less than 3 characters")]
     [MaxLength(100, ErrorMessage = "Notes cannot be over 100 characters")]
     public string? Notes { get; set; }
+
+    public List<CreateProjectTaskRequestDto>? Tasks { get; set; }
 }
