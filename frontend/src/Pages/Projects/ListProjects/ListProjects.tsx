@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import ProjectCard from "../../../Components/Projects/ProjectCard/ProjectCard";
 import { ProjectGet } from "../../../Models/Project";
 import { projectsGetAPI } from "../../../Services/ProjectService";
 import { toast } from "react-toastify";
+import SaveProjectModal from "../../../Components/Projects/SaveProjectModal/SaveProjectModal";
 
 interface Props {}
 
@@ -26,17 +26,27 @@ const ListProjects = (props: Props) => {
       });
   };
 
+  const [isOpen, setIsOpen] = useState(false);
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
   return (
     <>
+      <SaveProjectModal isOpen={isOpen} closeModal={closeModal} />
       <header className="flex items-center mb-3 py-4">
         <div className="flex justify-between items-end w-full">
           <h2 className="text-default text-sm font-normal">My Projects</h2>
-          <Link className="button" to="/projects/create">
+          <button className="button" onClick={openModal}>
             New Project
-          </Link>
+          </button>
         </div>
       </header>
-
       <main className="lg:flex lg:flex-wrap -mx-3">
         {projects ? (
           projects.map((project) => (
