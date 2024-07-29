@@ -2,37 +2,31 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import * as Yup from "yup";
 import Modal from "../../Modal/Modal";
-import { projectsPostAPI } from "../../../Services/ProjectService";
+import {
+  ProjectFormInputs,
+  projectsPostAPI,
+} from "../../../Services/ProjectService";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { camelCase } from "change-case";
 
 interface Props {
   isOpen: boolean;
   closeModal: () => void;
 }
 
-type Task = {
-  Body?: string;
-};
-
-type ProjectFormInputs = {
-  Title: string;
-  Description: string;
-  Tasks?: Task[];
-};
-
 const validationSchema = Yup.object().shape({
-  Title: Yup.string()
-    .required("Title is required")
-    .min(3, "Title cannot be less than 3 characters")
-    .max(50, "Title cannot be over 50 characters"),
-  Description: Yup.string()
+  title: Yup.string(),
+  // .required("Title is required")
+  // .min(3, "Title cannot be less than 3 characters")
+  // .max(50, "Title cannot be over 50 characters"),
+  description: Yup.string()
     .required("Description is required")
     .min(3, "Description cannot be less than 3 characters")
     .max(50, "Description cannot be over 50 characters"),
-  Tasks: Yup.array().of(
+  tasks: Yup.array().of(
     Yup.object().shape({
-      Body: Yup.string()
+      body: Yup.string()
         .min(3, "Task cannot be less than 3 characters")
         .max(50, "Task cannot be over 50 characters"),
     })
@@ -50,9 +44,9 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
   } = useForm<ProjectFormInputs>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      Title: "",
-      Description: "",
-      Tasks: [{ Body: "" }],
+      title: "",
+      description: "",
+      tasks: [{ body: "" }],
     },
     mode: "onSubmit",
     shouldUnregister: false,
@@ -60,11 +54,11 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
 
   const { fields, append } = useFieldArray({
     control,
-    name: "Tasks",
+    name: "tasks",
   });
 
   const addTask = () => {
-    append({ Body: "" });
+    append({ body: "" });
   };
 
   const handleAddProject = async (data: ProjectFormInputs) => {
@@ -81,11 +75,11 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
       })
       .catch((e) => {
         type FormField =
-          | "Title"
-          | "Description"
-          | "Tasks"
-          | `Tasks.${number}`
-          | `Tasks.${number}.Body`;
+          | "title"
+          | "description"
+          | "tasks"
+          | `tasks.${number}`
+          | `tasks.${number}.body`;
 
         interface FormErrors {
           [key: string]: string[];
@@ -95,7 +89,7 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
 
         if (errors) {
           Object.keys(errors).forEach((key) => {
-            setError(key as FormField, {
+            setError(camelCase(key) as FormField, {
               type: "manual",
               message: errors[key][0],
             });
@@ -124,12 +118,12 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
                 id="title"
                 className={
                   `border p-2 text-xs block w-full rounded ` +
-                  (errors.Title ? "border-error" : "border-muted-light")
+                  (errors.title ? "border-error" : "border-muted-light")
                 }
-                {...register("Title")}
+                {...register("title")}
               />
-              {errors.Title && (
-                <p className="text-error text-xs">{errors.Title.message}</p>
+              {errors.title && (
+                <p className="text-error text-xs">{errors.title.message}</p>
               )}
             </div>
             <div className="mb-4">
@@ -140,15 +134,15 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
                 id="description"
                 className={
                   `border p-2 text-xs block w-full rounded ` +
-                  (errors.Description ? "border-error" : "border-muted-light")
+                  (errors.description ? "border-error" : "border-muted-light")
                 }
                 rows={7}
-                {...register("Description")}
+                {...register("description")}
               ></textarea>
 
-              {errors.Description && (
+              {errors.description && (
                 <p className="text-error text-xs">
-                  {errors.Description.message}
+                  {errors.description.message}
                 </p>
               )}
             </div>
@@ -160,15 +154,15 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
               {fields.map((field, index) => (
                 <div key={field.id} className="mb-2">
                   <Controller
-                    name={`Tasks.${index}.Body`}
+                    name={`tasks.${index}.body`}
                     control={control}
-                    defaultValue={field.Body || ""}
+                    defaultValue={field.body || ""}
                     render={({ field }) => (
                       <input
                         type="text"
                         className={
                           `border p-2 text-xs block w-full rounded ` +
-                          (errors.Tasks?.[index]?.Body
+                          (errors.tasks?.[index]?.body
                             ? "border-error"
                             : "border-muted-light")
                         }
@@ -177,9 +171,9 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
                       />
                     )}
                   />
-                  {errors.Tasks?.[index]?.Body && (
+                  {errors.tasks?.[index]?.body && (
                     <p className="text-error text-xs">
-                      {errors.Tasks[index]?.Body?.message}
+                      {errors.tasks[index]?.body?.message}
                     </p>
                   )}
                 </div>

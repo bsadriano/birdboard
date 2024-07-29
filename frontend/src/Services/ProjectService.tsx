@@ -8,9 +8,14 @@ export const projectsGetAPI = async () => getAPI<ProjectGet[]>(api);
 export const projectGetAPI = async (id: string) =>
   getAPI<ProjectGet>(`${api}/${id}`);
 
+export type TaskFormInput = {
+  body?: string;
+};
+
 export type ProjectFormInputs = {
-  Title: string;
-  Description: string;
+  title?: string;
+  description: string;
+  tasks?: TaskFormInput[];
 };
 
 export const projectsPostAPI = async (projectData: ProjectFormInputs) =>
