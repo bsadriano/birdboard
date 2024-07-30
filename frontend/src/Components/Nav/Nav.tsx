@@ -1,14 +1,18 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../Context/useAuth";
-import { toast } from "react-toastify";
 import ThemeSwitcher from "../ThemeSwitcher/ThemeSwitcher";
+import { useState } from "react";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 // import logo from "./logo.svg";
 
 interface Props {}
 
 const Nav = (props: Props) => {
   const { user, isGuest, logout } = useAuth();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleLogout = (e: any) => logout(e);
 
@@ -44,6 +48,7 @@ const Nav = (props: Props) => {
 
         <div>
           <div className="flex items-center ml-auto text-default">
+            <ThemeSwitcher />
             {isGuest() ? (
               <>
                 <Link className="nav-link mr-2" to="login">
@@ -55,19 +60,39 @@ const Nav = (props: Props) => {
               </>
             ) : (
               <>
-                <ThemeSwitcher />
-                <img
-                  src={`https://gravatar.com/avatar/${user?.email}?s=60`}
-                  alt={user?.userName}
-                  width={35}
-                  className="rounded-full mr-3"
-                />
+                <Menu as="div" className="relative inline-block text-left">
+                  <div>
+                    <MenuButton className="inline-flex w-full items-center justify-center gap-x-1.5 rounded-md bg-card px-3 py-2 text-sm font-semibold text-default shadow-sm ring-1 ring-inset ring-muted-light hover:bg-muted-light">
+                      <img
+                        src={`https://gravatar.com/avatar/${user?.email}?s=60`}
+                        alt={user?.userName}
+                        width={35}
+                        className="rounded-full mr-3"
+                      />
+                      {user?.email}
+                      <ChevronDownIcon
+                        aria-hidden="true"
+                        className="-mr-1 h-5 w-5 text-gray-400"
+                      />
+                    </MenuButton>
+                  </div>
 
-                <span className="mr-3">{user?.userName}</span>
-
-                <button className="nav-link" onClick={handleLogout}>
-                  Logout
-                </button>
+                  <MenuItems
+                    transition
+                    className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+                  >
+                    <div className="py-1">
+                      <MenuItem>
+                        <button
+                          className="w-full block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
+                          onClick={handleLogout}
+                        >
+                          Logout
+                        </button>
+                      </MenuItem>
+                    </div>
+                  </MenuItems>
+                </Menu>
               </>
             )}
           </div>

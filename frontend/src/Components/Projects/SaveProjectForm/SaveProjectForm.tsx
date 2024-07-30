@@ -29,13 +29,13 @@ const SaveProjectForm = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="mb-6">
-        <label className="text-sm mb-2 block" htmlFor="title">
+        <label className="block mb-2 text-sm text-default" htmlFor="title">
           Title
         </label>
         <div>
           <input
             type="text"
-            className="bg-transparent border border-grey-light rounded p-2 text-xs w-full"
+            className="w-full rounded border border-muted-light bg-card p-2 text-xs text-default"
             placeholder="My next awesome project"
             required
             {...register("title")}
@@ -47,12 +47,15 @@ const SaveProjectForm = ({
       </div>
 
       <div className="mb-6">
-        <label className="text-sm mb-2 block" htmlFor="description">
+        <label
+          className="block mb-2 text-sm text-default"
+          htmlFor="description"
+        >
           Description
         </label>
         <div>
           <textarea
-            className="bg-transparent border border-grey-light rounded p-2 text-xs w-full"
+            className="w-full rounded border border-muted-light bg-card p-2 text-xs text-default"
             rows={10}
             placeholder="I should start learning piano"
             required

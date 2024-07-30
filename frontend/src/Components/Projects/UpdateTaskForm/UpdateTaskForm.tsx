@@ -63,7 +63,9 @@ const UpdateTaskForm = ({ projectId, task, getProject }: Props) => {
         <div className="w-full">
           <input
             type="text"
-            className={`w-full ${task.completed ? "text-default" : ""}`}
+            className={`w-full bg-card ${
+              task.completed ? "text-muted line-through" : "text-default"
+            }`}
             {...register("body")}
           />
           {errors.body && (

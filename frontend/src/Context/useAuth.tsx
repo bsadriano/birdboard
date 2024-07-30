@@ -54,8 +54,12 @@ export const UserProvider = ({ children }: Props) => {
           localStorage.setItem("user", JSON.stringify(userObj));
           setToken(res?.data.token!);
           setUser(userObj);
-          toast.success("Login Success!");
-          navigate("/search");
+          axios.defaults.headers.common["Authorization"] =
+            "Bearer " + res?.data.token!;
+          navigate("/projects");
+          toast.success("Login Success!", {
+            autoClose: 1000,
+          });
         }
       })
       .catch((e) => toast.warning("Server error occured"));
@@ -76,7 +80,9 @@ export const UserProvider = ({ children }: Props) => {
       axios.defaults.headers.common["Authorization"] =
         "Bearer " + res?.data.token!;
       navigate("/projects");
-      toast.success("Login Success!");
+      toast.success("Login Success!", {
+        autoClose: 1000,
+      });
     }
   };
 
