@@ -13,7 +13,7 @@ export type TaskFormInput = {
 };
 
 export type ProjectFormInputs = {
-  title?: string;
+  title: string;
   description: string;
   tasks?: TaskFormInput[];
 };

@@ -16,10 +16,10 @@ interface Props {
 }
 
 const validationSchema = Yup.object().shape({
-  title: Yup.string(),
-  // .required("Title is required")
-  // .min(3, "Title cannot be less than 3 characters")
-  // .max(50, "Title cannot be over 50 characters"),
+  title: Yup.string()
+    .required("Title is required")
+    .min(3, "Title cannot be less than 3 characters")
+    .max(50, "Title cannot be over 50 characters"),
   description: Yup.string()
     .required("Description is required")
     .min(3, "Description cannot be less than 3 characters")
@@ -103,37 +103,43 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
 
   return (
     <Modal isOpen={isOpen}>
-      <h1 className="font-normal mb-16 text-2xl text-center">
+      <h1 className="font-normal mb-16 text-2xl text-center text-default">
         Let's Start Something New
       </h1>
       <form onSubmit={handleSubmit(handleAddProject)}>
         <div className="flex">
           <div className="flex-1 mr-4">
             <div className="mb-4">
-              <label htmlFor="title" className="text-sm block mb-2">
+              <label
+                htmlFor="title"
+                className="text-sm text-default block mb-2"
+              >
                 Title
               </label>
               <input
                 type="text"
                 id="title"
-                className={
-                  `border p-2 text-xs block w-full rounded ` +
-                  (errors.title ? "border-error" : "border-muted-light")
-                }
+                className={`w-full block bg-card rounded border p-2 text-xs text-default ${
+                  errors.title ? "border-error" : "border-muted-light"
+                }`}
                 {...register("title")}
               />
+
               {errors.title && (
                 <p className="text-error text-xs">{errors.title.message}</p>
               )}
             </div>
             <div className="mb-4">
-              <label htmlFor="description" className="text-sm block mb-2">
+              <label
+                htmlFor="description"
+                className="block mb-2 text-sm text-default"
+              >
                 Description
               </label>
               <textarea
                 id="description"
                 className={
-                  `border p-2 text-xs block w-full rounded ` +
+                  `w-full block bg-card rounded border p-2 text-xs text-default ` +
                   (errors.description ? "border-error" : "border-muted-light")
                 }
                 rows={7}
@@ -150,7 +156,9 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
 
           <div className="flex-1 ml-4">
             <div className="mb-4">
-              <label className="text-sm block mb-2">Need Some Tasks?</label>
+              <label className="block mb-2 text-sm text-default">
+                Need Some Tasks?
+              </label>
               {fields.map((field, index) => (
                 <div key={field.id} className="mb-2">
                   <Controller
@@ -161,7 +169,7 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
                       <input
                         type="text"
                         className={
-                          `border p-2 text-xs block w-full rounded ` +
+                          `w-full block bg-card rounded border p-2 text-xs text-default ` +
                           (errors.tasks?.[index]?.body
                             ? "border-error"
                             : "border-muted-light")
@@ -182,7 +190,7 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
 
             <button
               type="button"
-              className="inline-flex items-center text-xs"
+              className="inline-flex items-center text-xs text-default"
               onClick={addTask}
             >
               <svg
@@ -192,7 +200,12 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
                 viewBox="0 0 18 18"
                 className="mr-2"
               >
-                <g fill="none" fillRule="evenodd" opacity=".307">
+                <g
+                  fill="none"
+                  fillRule="evenodd"
+                  opacity=".307"
+                  className="stroke-current"
+                >
                   <path
                     stroke="#000"
                     strokeOpacity=".012"
