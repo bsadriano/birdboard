@@ -88,35 +88,37 @@ public class AuthController : ControllerBase
         string token = _tokenService.CreateToken(user);
 
         var refreshToken = _tokenService.GenerateRefreshToken();
-        SetRefreshToken(refreshToken);
+        await SetRefreshToken(refreshToken, user);
 
         return Ok(user.ToLoggedInUserDto(token));
     }
 
     [HttpPost("refresh-token")]
+    [Authorize]
     public async Task<ActionResult<string>> RefreshToken()
     {
         var refreshToken = Request.Cookies["refreshToken"];
         var user = await _userManager.Users
             .FirstOrDefaultAsync(user => user.Id == _userService.GetAuthId());
 
+        if (user == null)
+            return Unauthorized("User not found");
+
         if (!user.RefreshToken.Equals(refreshToken))
             return Unauthorized("Invalid Refresh Token");
-        else if (user.TokenExpires < DateTime.Now)
+
+        if (user.TokenExpires < DateTime.Now)
             return Unauthorized("Token expired.");
 
         string token = _tokenService.CreateToken(user);
         var newRefreshToken = _tokenService.GenerateRefreshToken();
-        SetRefreshToken(newRefreshToken);
+        await SetRefreshToken(newRefreshToken, user);
 
         return Ok(token);
     }
 
-    private async Task SetRefreshToken(RefreshToken newRefreshToken)
+    private async Task SetRefreshToken(RefreshToken newRefreshToken, AppUser user)
     {
-        var user = await _userManager.Users
-            .FirstOrDefaultAsync(user => user.Id == _userService.GetAuthId());
-
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
