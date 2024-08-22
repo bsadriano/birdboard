@@ -1,16 +1,13 @@
 import axios from "axios";
 import { handleError } from "../Helpers/ErrorHandler";
-import { UserPorfileToken } from "../Models/User";
+import { UserProfileToken } from "../Models/User";
+import Agent from "../Api/Agent";
 
 const auth = `${process.env.REACT_APP_API_URL}/auth`;
 
 export const loginAPI = async (username: string, password: string) => {
   try {
-    const data = await axios.post<UserPorfileToken>(`${auth}/login`, {
-      username,
-      password,
-    });
-    return data;
+    return await Agent.Auth.login({ username, password });
   } catch (error) {
     handleError(error);
   }
@@ -22,7 +19,7 @@ export const registerAPI = async (
   password: string
 ) => {
   try {
-    const data = await axios.post<UserPorfileToken>(`${auth}/register`, {
+    const data = await axios.post<UserProfileToken>(`${auth}/register`, {
       email,
       username,
       password,

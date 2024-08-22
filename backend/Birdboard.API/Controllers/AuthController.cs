@@ -27,7 +27,6 @@ public class AuthController : ControllerBase
         _tokenService = tokenService;
     }
 
-
     [HttpGet, Authorize]
     public ActionResult<string> GetMe()
     {

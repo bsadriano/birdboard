@@ -1,4 +1,4 @@
-export type UserPorfileToken = {
+export type UserProfileToken = {
   userName: string;
   email: string;
   token: string;

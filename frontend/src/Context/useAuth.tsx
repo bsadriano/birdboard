@@ -66,24 +66,25 @@ export const UserProvider = ({ children }: Props) => {
   };
 
   const loginUser = async (username: string, password: string) => {
-    const res = await loginAPI(username, password);
-
-    if (res) {
-      localStorage.setItem("token", res?.data?.token);
-      const userObj = {
-        userName: res?.data.userName,
-        email: res?.data.email,
-      };
-      localStorage.setItem("user", JSON.stringify(userObj));
-      setToken(res?.data.token!);
-      setUser(userObj);
-      axios.defaults.headers.common["Authorization"] =
-        "Bearer " + res?.data.token!;
-      navigate("/projects");
-      toast.success("Login Success!", {
-        autoClose: 1000,
-      });
+    const data = await loginAPI(username, password);
+    if (!data) {
+      throw new Error("Error logging in");
     }
+    const { email, userName, token } = data;
+
+    localStorage.setItem("token", token);
+    const userObj = {
+      userName,
+      email,
+    };
+    localStorage.setItem("user", JSON.stringify(userObj));
+    setToken(token);
+    setUser(userObj);
+    axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+    navigate("/projects");
+    toast.success("Login Success!", {
+      autoClose: 1000,
+    });
   };
 
   const isLoggedIn = () => !!user;

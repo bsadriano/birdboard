@@ -1,0 +1,50 @@
+version: "3.8"
+
+networks:
+  backendapp:
+  app-network:
+    driver: bridge
+
+services:
+  db:
+    container_name: birdboard-db
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - 8002:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=password@12345#
+    networks:
+      - backendapp
+
+  frontend:
+    container_name: birdboard-frontend
+    build:
+      context: ./frontend # Adjust path if your React project is in a different folder
+      dockerfile: Dockerfile
+    ports:
+      - 8000:80
+    networks:
+      - app-network
+
+  backend:
+    container_name: birdboard-api
+    build:
+      context: ./backend # Adjust path if your .NET project is in a different folder
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - 5050:5000
+      - 5051:5001
+    networks:
+      - backendapp
+      - app-network
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5050;https://+:5051
+      - DB_HOST=db
+      - DB_NAME=DemoBlazorApp
+      - DB_SA_PASSWORD=password@12345#
