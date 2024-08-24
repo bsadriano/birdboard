@@ -69,7 +69,10 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
 
   const handleAddProject = async (body: SaveProjectRequestDto) => {
     try {
-      const data = await Agent.Project.create(body);
+      const data = await Agent.Project.create({
+        ...body,
+        tasks: body.tasks?.filter((task) => task.body?.length !== 0),
+      });
       if (data) {
         closeModal();
         toast.success("Project created!", {
