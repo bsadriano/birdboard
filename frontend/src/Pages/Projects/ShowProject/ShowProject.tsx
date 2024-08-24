@@ -1,28 +1,25 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import ProjectCard from "../../../Components/Projects/ProjectCard/ProjectCard";
-import { ProjectGet } from "../../../Models/Project";
-import { projectGetAPI } from "../../../Services/ProjectService";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { projectTaskPostAPI } from "../../../Services/ProjectTaskService";
-import UpdateTaskForm from "../../../Components/Projects/UpdateTaskForm/UpdateTaskForm";
-import GeneralNotes from "../../../Components/Projects/GeneralNotes/GeneralNotes";
+import Agent from "../../../Api/Agent";
 import ActivityCard from "../../../Components/Projects/ActivityCard/ActivityCard";
-import { gravatar_url } from "../../../Helpers/Gravatar_Url";
+import GeneralNotes from "../../../Components/Projects/GeneralNotes/GeneralNotes";
 import InviteCard from "../../../Components/Projects/InviteCard/InviteCard";
+import ProjectCard from "../../../Components/Projects/ProjectCard/ProjectCard";
+import UpdateTaskForm from "../../../Components/Projects/UpdateTaskForm/UpdateTaskForm";
 import { useAuth } from "../../../Context/useAuth";
+import { gravatar_url } from "../../../Helpers/Gravatar_Url";
+import { ProjectResponseDto } from "../../../Models/Project/ProjectResponseDto";
+import { CreateProjectTaskRequestDto } from "../../../Models/Project/ProjectTaskRequestDto";
 
 interface Props {}
 
-type AddTaskFormInputs = {
-  body?: string;
-};
-
 const validation = Yup.object().shape({
   body: Yup.string()
+    .required("Task cannot be empty")
     .min(3, "Task cannot be less than 3 characters")
     .max(50, "Task cannot be over 50 characters"),
 });
@@ -30,43 +27,43 @@ const validation = Yup.object().shape({
 const ShowProject = (props: Props) => {
   const navigate = useNavigate();
   const { projectId } = useParams();
-  const [project, setProject] = useState<ProjectGet>();
+  const [project, setProject] = useState<ProjectResponseDto>();
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<AddTaskFormInputs>({ resolver: yupResolver(validation) });
+  } = useForm<CreateProjectTaskRequestDto>({
+    resolver: yupResolver(validation),
+  });
   const { isAuthUser } = useAuth();
 
   useEffect(() => {
     getProject(projectId!);
   }, [projectId]);
 
-  const getProject = (projectId: string) => {
-    projectGetAPI(projectId)
-      .then((res) => {
-        if (res?.data) {
-          setProject(res?.data);
-        }
-      })
-      .catch((error) => {
-        toast.warning("Could not get project!");
-      });
+  const getProject = async (projectId: string) => {
+    try {
+      const data = await Agent.Project.show(projectId);
+      if (data) {
+        setProject(data);
+      }
+    } catch (err) {
+      toast.error("Could not get project!");
+    }
   };
 
-  const handleAddTask = ({ body }: AddTaskFormInputs) => {
-    projectTaskPostAPI(projectId!, body!)
-      .then((res) => {
-        if (res) {
-          toast.success("Task created successfully!");
-          getProject(projectId!);
-          reset();
-        }
-      })
-      .catch((e) => {
-        toast.warning(e);
-      });
+  const handleAddTask = async (body: CreateProjectTaskRequestDto) => {
+    try {
+      const res = await Agent.ProjectTask.create(projectId!, body);
+      if (res) {
+        toast.success("Task created successfully!");
+        getProject(projectId!);
+        reset();
+      }
+    } catch (e: any) {
+      toast.warning(e);
+    }
   };
 
   function handleDelete(): void {
@@ -129,7 +126,7 @@ const ShowProject = (props: Props) => {
                     {...register("body")}
                   />
                   {errors.body && (
-                    <p className="text-red-400 text-sm">
+                    <p className="text-error text-sm mt-2">
                       {errors.body.message}
                     </p>
                   )}

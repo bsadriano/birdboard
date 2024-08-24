@@ -1,13 +1,12 @@
-import React from "react";
-import {
-  ProjectActivity,
-  ProjectGet,
-  TaskActivity,
-} from "../../../Models/Project";
 import moment from "moment";
+import {
+  ProjectActivityDto,
+  ProjectResponseDto,
+  TaskActivityDto,
+} from "../../../Models/Project/ProjectResponseDto";
 
 interface Props {
-  project: ProjectGet;
+  project: ProjectResponseDto;
 }
 
 // Mapping of descriptions to messages
@@ -24,7 +23,7 @@ const descriptionMessages: Record<
 
 // Function to get message based on activity
 const getActivityMessage = (
-  activity: ProjectActivity | TaskActivity
+  activity: ProjectActivityDto | TaskActivityDto
 ): string => {
   const { subjectType, description, changes, entityData, user } = activity;
   if (subjectType === "Project") {
@@ -54,29 +53,13 @@ const ActivityCard = ({ project }: Props) => {
         {project &&
           Array.isArray(project?.activities) &&
           project?.activities.map(
-            (activity: ProjectActivity | TaskActivity) => {
-              if (activity.subjectType === "Project") {
-                return (
-                  <li key={activity.id} className="mb-1">
-                    {getActivityMessage(activity)}
-                    &nbsp;
-                    <span>
-                      {moment.utc(activity.createdAt).local().fromNow()}
-                    </span>
-                  </li>
-                );
-              } else if (activity.subjectType === "ProjectTask") {
-                return (
-                  <li key={activity.id} className="mb-1">
-                    {getActivityMessage(activity)}
-                    &nbsp;
-                    <span>
-                      {moment.utc(activity.createdAt).local().fromNow()}
-                    </span>
-                  </li>
-                );
-              }
-            }
+            (activity: ProjectActivityDto | TaskActivityDto) => (
+              <li key={activity.id} className="mb-1">
+                {getActivityMessage(activity)}
+                &nbsp;
+                <span>{moment.utc(activity.createdAt).local().fromNow()}</span>
+              </li>
+            )
           )}
       </ul>
     </div>

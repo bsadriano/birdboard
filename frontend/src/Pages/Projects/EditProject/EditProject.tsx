@@ -2,18 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
+import Agent from "../../../Api/Agent";
 import SaveProjectForm from "../../../Components/Projects/SaveProjectForm/SaveProjectForm";
-import {
-  projectGetAPI,
-  projectPatchAPI,
-} from "../../../Services/ProjectService";
+import { SaveProjectRequestDto } from "../../../Models/Project/ProjectRequestDto";
 
 interface Props {}
-
-export type EditProjectFormInputs = {
-  title: string;
-  description: string;
-};
 
 const validation = Yup.object().shape({
   title: Yup.string()
@@ -29,40 +22,37 @@ const validation = Yup.object().shape({
 const EditProject = (props: Props) => {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const [project, setProject] = useState<EditProjectFormInputs>();
+  const [project, setProject] = useState<SaveProjectRequestDto>();
 
   useEffect(() => {
+    const getProject = async () => {
+      const data = await Agent.Project.show(projectId!);
+
+      if (data) {
+        setProject({
+          title: data.title,
+          description: data.description,
+        });
+      }
+    };
+
     if (projectId) {
       getProject();
     }
   }, [projectId]);
 
-  const getProject = async () => {
-    const res = await projectGetAPI(projectId!);
-
-    if (res) {
-      setProject({
-        title: res.data.title,
-        description: res.data.description,
-      });
+  const handleUpdateProject = async (body: SaveProjectRequestDto) => {
+    try {
+      const data = await Agent.Project.update(projectId!, body);
+      if (data) {
+        toast.success("Project updated!", {
+          autoClose: 1000,
+        });
+        navigate(`/projects/${data.id}`);
+      }
+    } catch (error: any) {
+      toast.warning(error);
     }
-
-    return null;
-  };
-
-  const handleUpdateProject = async (projectData: EditProjectFormInputs) => {
-    projectPatchAPI(projectId!, projectData)
-      .then((res) => {
-        if (res) {
-          toast.success("Project updated!", {
-            autoClose: 1000,
-          });
-          navigate(`/projects/${res.data.id}`);
-        }
-      })
-      .catch((e) => {
-        toast.warning(e);
-      });
   };
 
   return (

@@ -1,13 +1,12 @@
-import React from "react";
-import * as Yup from "yup";
-import { ProjectGet } from "../../../Models/Project";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { projectPatchAPI } from "../../../Services/ProjectService";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import * as Yup from "yup";
+import Agent from "../../../Api/Agent";
+import { ProjectResponseDto } from "../../../Models/Project/ProjectResponseDto";
 
 interface Props {
-  project: ProjectGet;
+  project: ProjectResponseDto;
 }
 
 type UpdateNotesFormInput = {
@@ -49,16 +48,15 @@ const GeneralNotes = ({ project }: Props) => {
     resolver: yupResolver(validation),
   });
 
-  const handleUpdateNotes = (data: UpdateNotesFormInput) => {
-    projectPatchAPI(project!.id, data)
-      .then((res) => {
-        if (res) {
-          toast.success("General notes updated");
-        }
-      })
-      .catch((e) => {
-        toast.warning("Could not update project!");
-      });
+  const handleUpdateNotes = async (body: UpdateNotesFormInput) => {
+    try {
+      const data = await Agent.Project.update(project!.id, body);
+      if (data) {
+        toast.success("General notes updated");
+      }
+    } catch (error) {
+      toast.warning("Could not update project!");
+    }
   };
   return (
     <form onSubmit={handleSubmit(handleUpdateNotes)}>
@@ -70,7 +68,7 @@ const GeneralNotes = ({ project }: Props) => {
           {...register("notes")}
         ></textarea>
         {errors.notes && (
-          <p className="text-red-400 text-sm">{errors.notes.message}</p>
+          <p className="text-error text-sm mt-2">{errors.notes.message}</p>
         )}
       </div>
       <button type="submit" className="button">

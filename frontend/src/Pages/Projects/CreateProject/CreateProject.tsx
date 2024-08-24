@@ -1,15 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
+import Agent from "../../../Api/Agent";
 import SaveProjectForm from "../../../Components/Projects/SaveProjectForm/SaveProjectForm";
-import {
-  ProjectFormInputs,
-  projectsPostAPI,
-} from "../../../Services/ProjectService";
+import { SaveProjectRequestDto } from "../../../Models/Project/ProjectRequestDto";
 
 interface Props {}
 
-const validation = Yup.object<ProjectFormInputs>().shape({
+const validation = Yup.object<SaveProjectRequestDto>().shape({
   title: Yup.string()
     .required("The title field is required")
     .min(3, "Title cannot be less than 3 characters")
@@ -23,19 +21,18 @@ const validation = Yup.object<ProjectFormInputs>().shape({
 const CreateProject = (props: Props) => {
   const navigate = useNavigate();
 
-  const handleAddProject = (projectData: ProjectFormInputs) => {
-    projectsPostAPI(projectData)
-      .then((res) => {
-        if (res) {
-          toast.success("Project created!", {
-            autoClose: 1000,
-          });
-          navigate(`/projects/${res.data.id}`);
-        }
-      })
-      .catch((e) => {
-        toast.warning(e);
-      });
+  const handleAddProject = async (body: SaveProjectRequestDto) => {
+    try {
+      const data = await Agent.Project.create(body);
+      if (data) {
+        toast.success("Project created!", {
+          autoClose: 1000,
+        });
+        navigate(`/projects/${data.id}`);
+      }
+    } catch (error: any) {
+      toast.warning(error);
+    }
   };
 
   return (

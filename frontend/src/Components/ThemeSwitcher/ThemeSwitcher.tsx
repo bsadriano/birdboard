@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { Theme } from "react-toastify";
+import { useEffect, useState } from "react";
 
 interface Props {}
 

@@ -1,7 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
-import { ProjectFormInputs } from "../../../Services/ProjectService";
+import { SaveProjectRequestDto } from "../../../Models/Project/ProjectRequestDto";
 
 interface Props {
   defaultValues: any;
@@ -22,7 +22,7 @@ const SaveProjectForm = ({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ProjectFormInputs>({
+  } = useForm<SaveProjectRequestDto>({
     defaultValues: defaultValues,
     resolver: yupResolver(validation),
   });
@@ -41,7 +41,7 @@ const SaveProjectForm = ({
             {...register("title")}
           />
           {errors.title && (
-            <p className="text-red-400 text-sm">{errors.title.message}</p>
+            <p className="text-error text-sm mt-2">{errors.title.message}</p>
           )}
         </div>
       </div>
@@ -62,7 +62,9 @@ const SaveProjectForm = ({
             {...register("description")}
           />
           {errors.description && (
-            <p className="text-red-400 text-sm">{errors.description.message}</p>
+            <p className="text-error text-sm mt-2">
+              {errors.description.message}
+            </p>
           )}
         </div>
       </div>

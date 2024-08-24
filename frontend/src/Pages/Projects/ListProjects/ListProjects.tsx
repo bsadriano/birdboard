@@ -1,29 +1,29 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import Agent from "../../../Api/Agent";
 import ProjectCard from "../../../Components/Projects/ProjectCard/ProjectCard";
 import SaveProjectModal from "../../../Components/Projects/SaveProjectModal/SaveProjectModal";
-import { ProjectGet } from "../../../Models/Project";
-import { projectsGetAPI } from "../../../Services/ProjectService";
+import { ProjectResponseDto } from "../../../Models/Project/ProjectResponseDto";
 
 interface Props {}
 
 const ListProjects = (props: Props) => {
-  const [projects, setProjects] = useState<ProjectGet[]>([]);
+  const [projects, setProjects] = useState<ProjectResponseDto[]>([]);
   useEffect(() => {
     getProjects();
   }, []);
 
-  const getProjects = () => {
-    projectsGetAPI()
-      .then((res) => {
-        if (res?.data) {
-          setProjects(res?.data);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        toast.warning("Could not get projects!");
-      });
+  const getProjects = async () => {
+    try {
+      const data = await Agent.Project.list();
+
+      if (data) {
+        setProjects(data);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.warning("Could not get projects!");
+    }
   };
 
   const [isOpen, setIsOpen] = useState(false);

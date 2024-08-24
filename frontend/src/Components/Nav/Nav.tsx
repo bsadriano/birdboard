@@ -1,9 +1,9 @@
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../Context/useAuth";
 import ThemeSwitcher from "../ThemeSwitcher/ThemeSwitcher";
-import { useState } from "react";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
 // import logo from "./logo.svg";
 
 interface Props {}

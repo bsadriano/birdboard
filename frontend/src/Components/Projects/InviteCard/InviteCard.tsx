@@ -1,20 +1,17 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import * as Yup from "yup";
-import { projectInvitationsPostApi } from "../../../Services/ProjectInvitationService";
 import { toast } from "react-toastify";
+import * as Yup from "yup";
+import Agent from "../../../Api/Agent";
+import { CreateProjectInvitationRequestDto } from "../../../Models/Project/ProjectInvitationRequestDto";
 
 interface Props {
   projectId: number;
   onInviteUser: () => void;
 }
 
-type InviteFormInputs = {
-  email?: string;
-};
-
 const validation = Yup.object().shape({
-  email: Yup.string().email(),
+  email: Yup.string().required("Email cannot be empty").email(),
 });
 
 const InviteCard = ({ projectId, onInviteUser }: Props) => {
@@ -24,25 +21,26 @@ const InviteCard = ({ projectId, onInviteUser }: Props) => {
     reset,
     setError,
     formState: { errors },
-  } = useForm<InviteFormInputs>({ resolver: yupResolver(validation) });
+  } = useForm<CreateProjectInvitationRequestDto>({
+    resolver: yupResolver(validation),
+  });
 
-  function handleInviteUser({ email }: InviteFormInputs): void {
-    projectInvitationsPostApi(projectId, email!)
-      .then((res) => {
+  async function handleInviteUser(body: CreateProjectInvitationRequestDto) {
+    try {
+      const data = await Agent.ProjectInvitation.create(projectId, body);
+      if (data) {
         toast.success("User have been invited!");
         onInviteUser();
         reset();
-      })
-      .catch((error) => {
-        var err = error.response;
-
-        if (err?.data?.errors?.email) {
-          setError("email", {
-            type: "manual",
-            message: err.data.errors.email,
-          });
-        }
-      });
+      }
+    } catch (err: any) {
+      if (err?.data?.errors?.email) {
+        setError("email", {
+          type: "manual",
+          message: err.data.errors.email,
+        });
+      }
+    }
   }
 
   return (
@@ -54,6 +52,7 @@ const InviteCard = ({ projectId, onInviteUser }: Props) => {
       <form onSubmit={handleSubmit(handleInviteUser)}>
         <div className="mb-3">
           <input
+            required
             type="email"
             id="email"
             className={
@@ -64,7 +63,7 @@ const InviteCard = ({ projectId, onInviteUser }: Props) => {
             {...register("email")}
           />
           {errors.email && (
-            <p className="text-red-400 text-sm">{errors.email.message}</p>
+            <p className="text-error text-sm mt-2">{errors.email.message}</p>
           )}
         </div>
 

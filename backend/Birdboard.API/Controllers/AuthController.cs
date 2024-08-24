@@ -42,7 +42,7 @@ public class AuthController : ControllerBase
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            _userService.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            _userService.CreatePasswordHash(request.Password!, out byte[] passwordHash, out byte[] passwordSalt);
 
             var appUser = new AppUser
             {
@@ -54,11 +54,17 @@ public class AuthController : ControllerBase
 
             var createdUser = await _userManager.CreateAsync(appUser);
             if (!createdUser.Succeeded)
-                return StatusCode(500, createdUser.Errors);
+            {
+                return StatusCode(400, createdUser.Errors);
+                // foreach (var error in createdUser.Errors)
+                //     ModelState.AddModelError("Email", error.Description);
+
+                // return ValidationProblem();
+            }
 
             var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
             if (!roleResult.Succeeded)
-                return StatusCode(500, roleResult.Errors);
+                return StatusCode(400, roleResult.Errors);
 
             var token = _tokenService.CreateToken(appUser);
 

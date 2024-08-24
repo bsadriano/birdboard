@@ -1,14 +1,12 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import * as Yup from "yup";
-import Modal from "../../Modal/Modal";
-import {
-  ProjectFormInputs,
-  projectsPostAPI,
-} from "../../../Services/ProjectService";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 import { camelCase } from "change-case";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
+import Agent from "../../../Api/Agent";
+import { SaveProjectRequestDto } from "../../../Models/Project/ProjectRequestDto";
+import Modal from "../../Modal/Modal";
 
 interface Props {
   isOpen: boolean;
@@ -27,8 +25,16 @@ const validationSchema = Yup.object().shape({
   tasks: Yup.array().of(
     Yup.object().shape({
       body: Yup.string()
-        .min(3, "Task cannot be less than 3 characters")
-        .max(50, "Task cannot be over 50 characters"),
+        .test(
+          "empty-or-gte-3-characters-check",
+          "Task cannot be less than 3 characters",
+          (task) => !task || task.length >= 3
+        )
+        .test(
+          "empty-or-lte-50-characters-check",
+          "Task cannot be over 50 characters",
+          (task) => !task || task.length <= 50
+        ),
     })
   ),
 });
@@ -41,7 +47,7 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
     register,
     setError,
     formState: { errors },
-  } = useForm<ProjectFormInputs>({
+  } = useForm<SaveProjectRequestDto>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       title: "",
@@ -61,44 +67,42 @@ const SaveProjectModal = ({ isOpen, closeModal }: Props) => {
     append({ body: "" });
   };
 
-  const handleAddProject = async (data: ProjectFormInputs) => {
-    projectsPostAPI(data)
-      .then((res) => {
-        console.log(res);
-        if (res) {
-          closeModal();
-          toast.success("Project created!", {
-            autoClose: 1000,
+  const handleAddProject = async (body: SaveProjectRequestDto) => {
+    try {
+      const data = await Agent.Project.create(body);
+      if (data) {
+        closeModal();
+        toast.success("Project created!", {
+          autoClose: 1000,
+        });
+        navigate(`/projects/${data.id}`);
+      }
+    } catch (e: any) {
+      type FormField =
+        | "title"
+        | "description"
+        | "tasks"
+        | `tasks.${number}`
+        | `tasks.${number}.body`;
+
+      interface FormErrors {
+        [key: string]: string[];
+      }
+
+      const errors: FormErrors = e?.data?.errors;
+
+      if (errors) {
+        Object.keys(errors).forEach((key) => {
+          setError(camelCase(key) as FormField, {
+            type: "manual",
+            message: errors[key][0],
           });
-          navigate(`/projects/${res.data.id}`);
-        }
-      })
-      .catch((e) => {
-        type FormField =
-          | "title"
-          | "description"
-          | "tasks"
-          | `tasks.${number}`
-          | `tasks.${number}.body`;
+        });
+      }
 
-        interface FormErrors {
-          [key: string]: string[];
-        }
-
-        const errors: FormErrors = e.response?.data?.errors;
-
-        if (errors) {
-          Object.keys(errors).forEach((key) => {
-            setError(camelCase(key) as FormField, {
-              type: "manual",
-              message: errors[key][0],
-            });
-          });
-        }
-
-        console.log(e.response.data.errors);
-        toast.warning(e);
-      });
+      console.log(e.data.errors);
+      toast.warning(e);
+    }
   };
 
   return (

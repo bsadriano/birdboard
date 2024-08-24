@@ -1,19 +1,16 @@
-import * as Yup from "yup";
-import { ProjectTaskGet } from "../../../Models/ProjectTask";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { projectTaskPatchAPI } from "../../../Services/ProjectTaskService";
+import * as Yup from "yup";
+import Agent from "../../../Api/Agent";
+import { ProjectTaskDto } from "../../../Models/Project/ProjectTaskDto";
+import { UpdateProjectTaskRequestDto } from "../../../Models/Project/ProjectTaskRequestDto";
 
 interface Props {
   projectId: string;
-  task: ProjectTaskGet;
+  task: ProjectTaskDto;
   getProject: (projectId: string) => void;
 }
-
-type UdpateTaskFormInputs = {
-  body?: string;
-};
 
 const validation = Yup.object().shape({
   body: Yup.string()
@@ -26,35 +23,32 @@ const UpdateTaskForm = ({ projectId, task, getProject }: Props) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<UdpateTaskFormInputs>({
+  } = useForm<UpdateProjectTaskRequestDto>({
     defaultValues: {
       body: task.body,
     },
     resolver: yupResolver(validation),
   });
 
-  const handleUpdateTask = ({ body }: UdpateTaskFormInputs) => {
-    projectTaskPatchAPI(projectId, task.id, { body })
-      .then((res) => {
-        if (res) {
-          getProject(projectId);
-        }
-      })
-      .catch((e) => {
-        toast.warning(e);
-      });
+  const handleUpdateTask = async (body: UpdateProjectTaskRequestDto) => {
+    await updateTask(body);
   };
 
-  const handleToggleCompleted = (e: any) => {
-    projectTaskPatchAPI(projectId, task.id, { completed: e.target.checked })
-      .then((res) => {
-        if (res) {
-          getProject(projectId);
-        }
-      })
-      .catch((e) => {
-        toast.warning(e);
-      });
+  const handleToggleCompleted = async (e: any) => {
+    await updateTask({
+      completed: e.target.checked,
+    });
+  };
+
+  const updateTask = async (body: UpdateProjectTaskRequestDto) => {
+    try {
+      const data = await Agent.ProjectTask.update(projectId, task.id, body);
+      if (data) {
+        getProject(projectId);
+      }
+    } catch (e: any) {
+      toast.warning(e);
+    }
   };
 
   return (
@@ -69,7 +63,7 @@ const UpdateTaskForm = ({ projectId, task, getProject }: Props) => {
             {...register("body")}
           />
           {errors.body && (
-            <p className="text-red-400 text-sm">{errors.body.message}</p>
+            <p className="text-error text-sm mt-2">{errors.body.message}</p>
           )}
         </div>
         <input

@@ -1,27 +1,32 @@
-import { ProjectTaskGet } from "./ProjectTask";
+import { ProjectTaskDto } from "./ProjectTaskDto";
 
-export type ProjectGet = {
+export type ProjectResponseDto = {
   id: number;
-  owner: OwnerGet;
-  tasks: ProjectTaskGet[];
-  activities: ProjectActivity | TaskActivity[];
+  owner: OwnerDto;
+  tasks: ProjectTaskDto[];
+  activities: ProjectActivityDto | TaskActivityDto[];
   title: string;
   notes: string;
   description: string;
   path: string;
-  members: ProjectMemberGet[];
+  members: ProjectMemberDto[];
 };
 
-export type OwnerGet = {
+export type OwnerDto = {
   id: string;
   userName: string;
   email: string;
 };
 
+export type ProjectMemberDto = {
+  email: string;
+  token: string;
+  userName: string;
+};
+
 // Base type for common properties
-type BaseActivity<T extends string> = {
+type BaseActivity = {
   id: number;
-  description: T;
   createdAt: string;
   entityData: {
     id: number;
@@ -32,11 +37,12 @@ type BaseActivity<T extends string> = {
   subjectId: number;
   subjectType: string; // To be narrowed in derived types
   changes: any;
-  user: OwnerGet;
+  user: OwnerDto;
 };
 
 // Project Activity Type
-export type ProjectActivity = BaseActivity<"created" | "updated"> & {
+export type ProjectActivityDto = BaseActivity & {
+  description: "created" | "updated";
   entityData: {
     id: number;
     title: string;
@@ -46,25 +52,15 @@ export type ProjectActivity = BaseActivity<"created" | "updated"> & {
 };
 
 // Task Activity Type
-export type TaskActivity = BaseActivity<
-  "created_task" | "updated_task" | "completed_task" | "incompleted_task"
-> & {
+export type TaskActivityDto = BaseActivity & {
+  description:
+    | "created_task"
+    | "updated_task"
+    | "completed_task"
+    | "incompleted_task";
   entityData: {
     id: number;
     body: string;
   };
   subjectType: "ProjectTask";
-};
-
-export type ProjectMemberGet = {
-  email: string;
-  token: string;
-  userName: string;
-};
-
-export type ProjectResponse = {
-  id: number;
-  title: string;
-  description: string;
-  notes: string;
 };

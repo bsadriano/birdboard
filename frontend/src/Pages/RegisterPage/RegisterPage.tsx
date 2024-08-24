@@ -1,16 +1,12 @@
-import * as Yup from "yup";
-import { useForm } from "react-hook-form";
-import { useAuth } from "../../Context/useAuth";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import * as Yup from "yup";
+import { useAuth } from "../../Context/useAuth";
+import { RegisterRequestDto } from "../../Models/Register/RegisterRequestDto";
 
 interface Props {}
-
-type RegisterFormInputs = {
-  email: string;
-  userName: string;
-  password: string;
-};
 
 const validation = Yup.object().shape({
   email: Yup.string().email().required("Email is required"),
@@ -20,14 +16,27 @@ const validation = Yup.object().shape({
 
 const RegisterPage = (props: Props) => {
   const { registerUser } = useAuth();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterFormInputs>({ resolver: yupResolver(validation) });
+  const [errors, setErrors] = useState<any>([]);
+  const { register, handleSubmit } = useForm<RegisterRequestDto>({
+    resolver: yupResolver(validation),
+  });
 
-  const handleRegister = (form: RegisterFormInputs) => {
-    registerUser(form.email, form.userName, form.password);
+  const handleRegister = async (form: RegisterRequestDto) => {
+    try {
+      await registerUser(form);
+    } catch (err: any) {
+      if (err.data.errors) {
+        setErrors(
+          Object.keys(err.data.errors).map((key) => {
+            return errors[key][0];
+          })
+        );
+      } else if (err.data && Array.isArray(err.data)) {
+        setErrors(err.data.map((error: any) => error.description));
+      } else if (err.data) {
+        setErrors([err.data]);
+      }
+    }
   };
 
   return (
@@ -47,15 +56,9 @@ const RegisterPage = (props: Props) => {
               id="email"
               type="email"
               required
-              className={`input bg-transparent border ${
-                errors.email ? "border-error" : "border-muted-light"
-              } rounded p-2 text-xs text-default w-full `}
+              className={`input bg-transparent border border-muted-light rounded p-2 text-xs text-default w-full `}
               {...register("email")}
             />
-
-            {errors.email && (
-              <p className="text-error text-xs">{errors.email.message}</p>
-            )}
           </div>
 
           <div className="mb-4">
@@ -69,15 +72,9 @@ const RegisterPage = (props: Props) => {
             <input
               id="userName"
               required
-              className={`input bg-transparent border ${
-                errors.userName ? "border-error" : "border-muted-light"
-              } rounded p-2 text-xs text-default w-full `}
+              className={`input bg-transparent border border-muted-light rounded p-2 text-xs text-default w-full `}
               {...register("userName")}
             />
-
-            {errors.userName && (
-              <p className="text-error text-xs">{errors.userName.message}</p>
-            )}
           </div>
 
           <div className="mb-4">
@@ -91,15 +88,17 @@ const RegisterPage = (props: Props) => {
               id="password"
               type="password"
               required
-              className={`input bg-transparent border ${
-                errors.password ? "border-error" : "border-muted-light"
-              } rounded p-2 text-xs text-default w-full`}
+              className={`input bg-transparent border border-muted-light rounded p-2 text-xs text-default w-full`}
               {...register("password")}
             />
-            {errors.password && (
-              <p className="text-error text-xs">{errors.password.message}</p>
-            )}
           </div>
+
+          {errors &&
+            errors.map((error: string) => (
+              <p key={error} className="text-error text-xs mb-4">
+                {error}
+              </p>
+            ))}
         </div>
 
         <footer className="flex flex-col items-center">

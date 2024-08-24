@@ -1,4 +1,4 @@
-export type ProjectTaskGet = {
+export type ProjectTaskDto = {
   id: number;
   projectId: number;
   body: string;

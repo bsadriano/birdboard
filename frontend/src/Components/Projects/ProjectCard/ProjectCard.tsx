@@ -1,35 +1,33 @@
-import { Link } from "react-router-dom";
-import { stringLimit } from "../../../Helpers/StringLimit";
-import { ProjectGet } from "../../../Models/Project";
 import { FormEvent } from "react";
-import { projectsDeleteAPI } from "../../../Services/ProjectService";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import Agent from "../../../Api/Agent";
 import { useAuth } from "../../../Context/useAuth";
+import { stringLimit } from "../../../Helpers/StringLimit";
+import { ProjectResponseDto } from "../../../Models/Project/ProjectResponseDto";
 
 interface Props {
-  project: ProjectGet;
+  project: ProjectResponseDto;
   onDelete?: () => void;
 }
 
 const ProjectCard = ({ project, onDelete = () => {} }: Props) => {
   const { isAuthUser } = useAuth();
 
-  function handleDelete(event: FormEvent<HTMLFormElement>): void {
+  async function handleDelete(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    try {
+      const data = await Agent.Project.delete(project.id);
+      if (data) {
+        toast.success("Project deleted!", {
+          autoClose: 1000,
+        });
 
-    projectsDeleteAPI(project.id)
-      .then((res) => {
-        if (res) {
-          toast.success("Project deleted!", {
-            autoClose: 1000,
-          });
-
-          onDelete();
-        }
-      })
-      .catch((e) => {
-        toast.warning(e);
-      });
+        onDelete();
+      }
+    } catch (e: any) {
+      toast.warning(e);
+    }
   }
 
   return (
