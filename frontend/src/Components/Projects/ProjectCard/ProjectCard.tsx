@@ -17,14 +17,12 @@ const ProjectCard = ({ project, onDelete = () => {} }: Props) => {
   async function handleDelete(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      const data = await Agent.Project.delete(project.id);
-      if (data) {
-        toast.success("Project deleted!", {
-          autoClose: 1000,
-        });
+      await Agent.Project.delete(project.id);
+      toast.success("Project deleted!", {
+        autoClose: 1000,
+      });
 
-        onDelete();
-      }
+      onDelete();
     } catch (e: any) {
       toast.warning(e);
     }
